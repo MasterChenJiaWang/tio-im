@@ -1,0 +1,54 @@
+#
+spring:
+  rabbitmq:
+    publisher-confirm-type: correlated
+    virtual-host: pro-mq
+    host: 127.0.0.1
+    port: 5672
+    username: admin
+    password: 123456
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: 1
+    connection-timeout: 10000ms
+    template:
+      mandatory: true
+
+
+#JIM  自定义配置
+jim:
+  bind-ip: ${BIND_IP:192.168.1.22}
+  port: ${BIND_PORT:18885}
+  heartbeat-time-out: ${HEARTBEAT_TIME_OUT:0}
+  store: ${store:true}
+  cluster: ${CLUSTER:true}
+  #server 集群 必须 且每个唯一
+  topic-suffix: ${TOPIC_NAME:pro_1111_}
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+  api:
+    url: ${API_URL:http://127.0.0.1:15010/gateway}
+    # 为true 需要配置mq
+    enabled: ${API_ENABLED:false}
+  http:
+    max-live-time: 0
+    page: pages
+    scan-packages: com.daren.chen.im.server.springboot.ImServerCupStart,com.daren.chen.im.server.springboot
+  redis:
+    #redis  集群失效
+    host: ${REDIS_HOST:127.0.0.1}
+    #redis  集群失效
+    port: ${REDIS_PORT:6379}
+    #redis密码  集群下 每个密码必须相同
+    auth: ${REDIS_AUTH:}
+    retrynum: ${REDIS_RETRYNUM:300}
+    maxactive: ${REDIS_MAXACTIVE:1}
+    maxidle: ${REDIS_MAXIDLE:20}
+    maxwait: ${REDIS_MAXWAIT:5000}
+    timeout: ${REDIS_TIMEOUT:5000}
+    #redis  集群
+    cluster: ${REDIS_CLUSTER:true}
+    # redis集群地址
+    cluster-addr: ${REDIS_CLUSTER_ADDR:127.0.0.1:7001,127.0.0.1:7002,127.0.0.1:7003,127.0.0.1:7004,127.0.0.1:7005,127.0.0.1:7006}
+

@@ -1,0 +1,36 @@
+[33mcommit 3ff6d977551d78b462a49338195774fd9c944040[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: chenjiawang <372070693@qq.com>
+Date:   Fri Jan 8 15:00:08 2021 +0800
+
+    优化集群设置
+
+[33mcommit 5fa05daf0634d564886a07ec6b17d1d356414ec1[m
+Author: chenjiawang <372070693@qq.com>
+Date:   Fri Jan 8 14:50:50 2021 +0800
+
+    优化集群设置
+
+[33mcommit eff227fa352332f0f157ba92780524b6aeee3e35[m
+Author: chenjiawang <372070693@qq.com>
+Date:   Thu Dec 31 13:30:04 2020 +0800
+
+    修改不访问api
+
+[33mcommit 3ecc1cea7f5506c9594b77816f6b4b9d298a0cd5[m
+Merge: ac523c5 d153224
+Author: chenjiawang <372070693@qq.com>
+Date:   Thu Dec 31 08:53:36 2020 +0800
+
+    Merge branch 'master' of https://github.com/MasterChenJiaWang/tio-im
+
+[33mcommit d1532243a556331210b7d47ab6410660f7caff23[m
+Author: 落雨瑶瑶初秋至 <chenjiawang520@icloud.com>
+Date:   Wed Dec 30 17:21:21 2020 +0800
+
+    Initial commit
+
+[33mcommit ac523c558e03e0a8ccfe5bb6979b2c273faa572f[m
+Author: chenjiawang <372070693@qq.com>
+Date:   Wed Dec 30 17:13:48 2020 +0800
+
+    im

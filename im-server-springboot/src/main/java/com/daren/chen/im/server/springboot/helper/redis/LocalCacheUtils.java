@@ -1260,6 +1260,7 @@ public class LocalCacheUtils implements ImConst, Serializable {
         RedisCacheManager.register(GROUP, CACHE_TIME_OUT_100, CACHE_TIME_OUT_100);
         RedisCacheManager.register(STORE, Integer.MAX_VALUE, Integer.MAX_VALUE);
         RedisCacheManager.register(PUSH, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        RedisCacheManager.register(PUSH_ACK_FAIL, CACHE_TIME_OUT_100, CACHE_TIME_OUT_100);
         RedisCacheManager.register(USER_TOKEN, CACHE_TIME_OUT_7, CACHE_TIME_OUT_7);
         RedisCacheManager.register(USER_VERSION_INFO, CACHE_TIME_OUT_10, CACHE_TIME_OUT_10);
         RedisCacheManager.register(TOPIC_NAME, Integer.MAX_VALUE, Integer.MAX_VALUE);

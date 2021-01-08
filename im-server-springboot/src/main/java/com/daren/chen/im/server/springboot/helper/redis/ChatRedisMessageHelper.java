@@ -92,6 +92,15 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
      */
     @Override
     public void saveNoReadMessage(String timelineTable, String timelineId, ChatBody chatBody) {
+        if (chatBody == null) {
+            return;
+        }
+        // 从 没有删除成功的ack_id 如果存在 就不保存
+        String msgId = RedisCacheManager.getCache(PUSH_ACK_FAIL).get(chatBody.getId(), String.class);
+        if (StringUtils.isNotBlank(msgId)) {
+            RedisCacheManager.getCache(PUSH_ACK_FAIL).remove(msgId);
+            return;
+        }
         LocalCacheUtils.me().saveNoReadMessage(timelineTable, timelineId, chatBody);
     }
 
@@ -301,14 +310,15 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         if (StringUtils.isNotBlank(groupId)) {
             groupMemberId = userId;
         }
-        //
-        updateAndRemoveOffLineMessage(userId, chatBody);
         // 修改数据库
         if (isSqlSave) {
             ChatCommonMethodUtils chatCommonMethodUtils =
                 ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
             return chatCommonMethodUtils.updateLastMsgId(operateUserId, from, to, groupId, groupMemberId, id);
         }
+        //
+        updateAndRemoveOffLineMessage(userId, chatBody);
+
         return true;
     }
 
@@ -317,14 +327,14 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
      * @param userId
      * @param chatBody
      */
-    private void updateAndRemoveOffLineMessage(String userId, ChatAckBody chatBody) {
+    private boolean updateAndRemoveOffLineMessage(String userId, ChatAckBody chatBody) {
         if (chatBody == null) {
-            return;
+            return false;
         }
         // // 群消息
         List<ChatBody> messageDataList = getHistoryChatBody(userId, chatBody);
         //
-        resendOfflineMessage(userId, chatBody, messageDataList);
+        return resendOfflineMessage(userId, chatBody, messageDataList);
     }
 
     private List<ChatBody> getHistoryChatBody(String userId, ChatAckBody chatBody) {
@@ -352,21 +362,23 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     /**
      *
      */
-    private void resendOfflineMessage(String userId, ChatAckBody chatBody, List<ChatBody> messageDataList) {
+    private boolean resendOfflineMessage(String userId, ChatAckBody chatBody, List<ChatBody> messageDataList) {
         try {
 
             String from = chatBody.getFrom();
             String groupId = chatBody.getGroupId();
             List<String> msgIds = chatBody.getMsgIds();
             if (CollectionUtils.isEmpty(msgIds)) {
-                return;
+                return false;
             }
+            long l1 = System.currentTimeMillis();
             List<ChatBody> oldOfflineMesage = new ArrayList<>();
             boolean b = checkCountAndClear(messageDataList, msgIds, oldOfflineMesage);
             if (!b) {
                 // 清空 重新查询
                 messageDataList = null;
                 oldOfflineMesage.clear();
+                log.warn("线程[{}] 清空", Thread.currentThread().getName());
             }
             // 总共等10s
             int n = 100;
@@ -383,8 +395,14 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
                     oldOfflineMesage.clear();
                 }
             }
+            log.warn("删除离线消息查询耗时 线程[{}]  耗时 [{}]", Thread.currentThread().getName(), System.currentTimeMillis() - l1);
             if (CollectionUtils.isEmpty(messageDataList)) {
-                return;
+                log.warn("删除离线消息-失败 线程[{}]  ", Thread.currentThread().getName());
+                // 保存 没有删成功的ack id
+                for (String msgId : msgIds) {
+                    RedisCacheManager.getCache(PUSH_ACK_FAIL).put(msgId, msgId);
+                }
+                return false;
             }
             // 群消息
             if (StringUtils.isNotBlank(groupId)) {
@@ -404,9 +422,12 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
                     }
                 }
             }
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
+            return false;
         }
+
     }
 
     private boolean checkCountAndClear(List<ChatBody> messageDataList, List<String> msgIds,

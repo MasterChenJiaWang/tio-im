@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ import com.daren.chen.im.core.packets.UserMessageData;
 import com.daren.chen.im.core.tcp.TcpPacket;
 import com.daren.chen.im.core.tcp.TcpServerDecoder;
 import com.daren.chen.im.core.tcp.TcpServerEncoder;
+
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  *
@@ -127,21 +130,12 @@ public class Test3HelloImClientHandler2 implements ImClientHandler, ImConst {
                                     if (value == null || value.size() == 0) {
                                         continue;
                                     }
-                                    List<String> msgIds = new ArrayList<>(stringListMap.size() + 1);
+                                    //
+                                    setChatBodyCache(chatBodyCache, value);
                                     for (ChatBody body : value) {
-                                        msgIds.add(body.getId());
                                         int i2 = atomicInteger.incrementAndGet();
                                         logger.warn("2-离线消息 : {}  id[{}]", i2, body.getId());
-                                    }
-                                    ChatBody lastChatBody = value.get(value.size() - 1);
-                                    if (lastChatBody != null) {
-                                        ChatAckBody chatAckBody = ChatAckBody.newBuilder().to(lastChatBody.getTo())
-                                            .from(lastChatBody.getFrom()).groupId(lastChatBody.getGroupId())
-                                            .msgIds(msgIds).setId(lastChatBody.getId()).build();
-                                        chatAckBody.setCreateTime(lastChatBody.getCreateTime());
-                                        chatBodyCache.put(chatAckBody.getId(), chatAckBody);
-                                    }
-                                    for (ChatBody body : value) {
+                                        //
                                         instance.chatAck(body);
                                     }
 
@@ -160,21 +154,12 @@ public class Test3HelloImClientHandler2 implements ImClientHandler, ImConst {
                                     if (value == null || value.size() == 0) {
                                         continue;
                                     }
-                                    List<String> msgIds = new ArrayList<>(stringListMap.size() + 1);
+                                    //
+                                    setChatBodyCache(chatBodyCache, value);
                                     for (ChatBody body : value) {
-                                        msgIds.add(body.getId());
                                         int i2 = atomicInteger.incrementAndGet();
                                         logger.warn("2-离线消息 : {}  id[{}]", i2, body.getId());
-                                    }
-                                    ChatBody lastChatBody = value.get(value.size() - 1);
-                                    if (lastChatBody != null) {
-                                        ChatAckBody chatAckBody = ChatAckBody.newBuilder().to(lastChatBody.getTo())
-                                            .from(lastChatBody.getFrom()).groupId(lastChatBody.getGroupId())
-                                            .msgIds(msgIds).setId(lastChatBody.getId()).build();
-                                        chatAckBody.setCreateTime(lastChatBody.getCreateTime());
-                                        chatBodyCache.put(chatAckBody.getId(), chatAckBody);
-                                    }
-                                    for (ChatBody body : value) {
+                                        //
                                         instance.chatAck(body);
                                     }
                                 }
@@ -188,6 +173,53 @@ public class Test3HelloImClientHandler2 implements ImClientHandler, ImConst {
             default:
                 break;
         }
+    }
+
+    /**
+     * 分页设置
+     *
+     * @param chatBodyList
+     *            分页数据
+     */
+
+    public static void setChatBodyCache(Map<String, ChatAckBody> chatBodyCache, List<ChatBody> chatBodyList) {
+        if (CollectionUtil.isEmpty(chatBodyList)) {
+            return;
+        }
+
+        int totalcount = chatBodyList.size();
+        int pagecount;
+        int pagesize = 10;
+        List<ChatBody> subList;
+        int m = totalcount % pagesize;
+        if (m > 0) {
+            pagecount = totalcount / pagesize + 1;
+        } else {
+            pagecount = totalcount / pagesize;
+        }
+        //
+        for (int currentPage = 1; currentPage <= pagecount; currentPage++) {
+            if (m == 0) {
+                subList = chatBodyList.subList((currentPage - 1) * pagesize, pagesize * (currentPage));
+            } else {
+                if (currentPage == pagecount) {
+                    subList = chatBodyList.subList((currentPage - 1) * pagesize, totalcount);
+                } else {
+                    subList = chatBodyList.subList((currentPage - 1) * pagesize, pagesize * (currentPage));
+                }
+            }
+            //
+            if (subList.size() > 0) {
+                ChatBody lastChatBody = subList.get(subList.size() - 1);
+                List<String> msgIds = subList.stream().map(ChatBody::getId).collect(Collectors.toList());
+                ChatAckBody chatAckBody = ChatAckBody.newBuilder().to(lastChatBody.getTo()).from(lastChatBody.getFrom())
+                    .groupId(lastChatBody.getGroupId()).msgIds(msgIds).setId(lastChatBody.getId()).build();
+                chatAckBody.setCreateTime(lastChatBody.getCreateTime());
+                chatBodyCache.put(chatAckBody.getId(), chatAckBody);
+            }
+
+        }
+
     }
 
     /**

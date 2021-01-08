@@ -272,6 +272,7 @@ public interface ImConst {
     String STORE = "store";
 
     String PUSH = "push";
+    String PUSH_ACK_FAIL = "push_ack_fail";
 
     String GROUP = "group";
 

@@ -1,18 +1,8 @@
 package com.daren.chen.im.server.springboot.helper.redis;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-
+import cn.hutool.cache.Cache;
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.daren.chen.im.core.ImConst;
 import com.daren.chen.im.core.cache.redis.RedisCache;
 import com.daren.chen.im.core.cache.redis.RedisCacheManager;
@@ -27,10 +17,18 @@ import com.daren.chen.im.core.packets.UserStatusType;
 import com.daren.chen.im.core.utils.JsonKit;
 import com.daren.chen.im.server.config.ImServerConfig;
 import com.daren.chen.im.server.util.ChatKit;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
-import cn.hutool.cache.Cache;
-import cn.hutool.cache.CacheUtil;
-import cn.hutool.core.collection.CollectionUtil;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Description:
@@ -86,7 +84,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     private static volatile boolean IS_STORE = false;
 
     /**
-     *
      * @return
      * @throws Exception
      */
@@ -105,7 +102,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -123,7 +119,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param user
      */
@@ -141,7 +136,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      */
     private void removeUserInfo(String userId) {
@@ -168,7 +162,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -186,7 +179,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param idList
      */
@@ -204,7 +196,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      */
     private void removeUserFriendIds(String userId) {
@@ -231,7 +222,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -249,7 +239,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param idList
      */
@@ -267,7 +256,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      */
     private void removeUserGroupIds(String userId) {
@@ -294,7 +282,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @return
      */
@@ -312,7 +299,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @param group
      */
@@ -353,7 +339,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @return
      */
@@ -371,7 +356,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @param idList
      */
@@ -412,7 +396,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -431,7 +414,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param user
      */
@@ -446,7 +428,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -465,7 +446,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param friendIds
      */
@@ -485,7 +465,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -504,7 +483,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param groupIds
      */
@@ -524,7 +502,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @return
      */
@@ -543,7 +520,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @param userIds
      */
@@ -562,7 +538,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @param userId
      */
@@ -581,7 +556,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      */
     public void removeGroupUserIdsByCache(String groupId) {
@@ -599,7 +573,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @param userId
      */
@@ -618,7 +591,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @return
      */
@@ -637,7 +609,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @param group
      */
@@ -655,7 +626,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      */
     public void removeUserInfoCache(String userId) {
@@ -683,7 +653,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      */
     public void removeUserMessageCache(String userId, String friendId) {
@@ -700,7 +669,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      */
     public void removeGroupInfoCache(String groupId) {
@@ -734,7 +702,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      * @param userId
      */
@@ -762,7 +729,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param groupId
      */
     public void dissolveGroupCache(String groupId) {
@@ -776,7 +742,7 @@ public class LocalCacheUtils implements ImConst, Serializable {
         // 移除群组未读消息
         try {
             Set<String> keys =
-                RedisTemplateUtils.getRedisTemplate().keys(PUSH + SUFFIX + GROUP + SUFFIX + groupId + SUFFIX);
+                    RedisTemplateUtils.getRedisTemplate().keys(PUSH + SUFFIX + GROUP + SUFFIX + groupId + SUFFIX);
             if (CollectionUtil.isNotEmpty(keys)) {
                 for (String key : keys) {
                     key = key.substring(key.indexOf(GROUP));
@@ -791,7 +757,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      */
     public void clearUserCache(String userId) {
@@ -845,7 +810,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      * @param chatBody
@@ -860,7 +824,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      * @param chatBody
@@ -875,7 +838,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      */
@@ -887,7 +849,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      */
@@ -899,7 +860,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param fromUserId
      * @return
@@ -911,7 +871,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param fromUserId
      * @return
@@ -923,7 +882,21 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
+     * @param userId
+     * @param fromUserId
+     * @return
+     */
+    public List<ChatBody> getFriendsOfflineMessageOfLastMsgId(String userId, String fromUserId, Double endTime) {
+        String userFriendKey = USER + SUFFIX + userId + SUFFIX + fromUserId;
+        Long createTime = RedisCacheManager.getCache(PUSH_LAST_ID).get(userFriendKey, Long.class);
+        //
+//        String sessionId = ChatKit.sessionId(userId, fromUserId);
+//        String userSessionKey = USER + SUFFIX + sessionId;
+        List<String> messageList = RedisCacheManager.getCache(STORE).sortSetGetAll(userFriendKey, createTime == null ? 0 : createTime + 1, endTime == null ? System.currentTimeMillis() : endTime);
+        return JsonKit.toArray(messageList, ChatBody.class);
+    }
+
+    /**
      * @param userId
      * @return
      */
@@ -952,6 +925,42 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
+     * @param userId
+     * @return
+     */
+    public UserMessageData getFriendsOfflineMessageOfLastMsgId(String userId, Double endTime) {
+        UserMessageData messageData = new UserMessageData(userId);
+        try {
+            // 获取所有好友消息key
+            String likeKey = PUSH_LAST_ID + SUFFIX + USER + SUFFIX + userId;
+            Set<String> userKeys = RedisTemplateUtils.getRedisTemplate().keys(likeKey);
+            // 获取好友离线消息;
+            if (CollectionUtils.isNotEmpty(userKeys)) {
+                List<ChatBody> messageList = new ArrayList<>();
+                for (String userKey : userKeys) {
+                    String fromUserId = userKey.substring(userKey.lastIndexOf(SUFFIX) + 1);
+                    List<ChatBody> messages = getFriendsOfflineMessageOfLastMsgId(userId, fromUserId, endTime);
+                    if (CollectionUtils.isNotEmpty(messages)) {
+                        messageList.addAll(messages);
+                    }
+                }
+                putFriendsMessage(messageData, messageList, null);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return messageData;
+    }
+
+    /**
+     * @param userId
+     * @return
+     */
+    public UserMessageData getFriendsOfflineMessageOfLastMsgId(String userId) {
+        return getFriendsOfflineMessageOfLastMsgId(userId, (double) System.currentTimeMillis());
+    }
+
+    /**
      * 获取用户 群离线消息
      *
      * @param userId
@@ -974,15 +983,41 @@ public class LocalCacheUtils implements ImConst, Serializable {
         return messageData;
     }
 
+    public UserMessageData getGroupsOfflineMessageOfLastMsgId(String userId, Double endTime) {
+        UserMessageData messageData = new UserMessageData(userId);
+        // 获取该用户所有组ID
+        List<String> groupIdList = RedisCacheManager.getCache(USER).listGetAll(userId + SUFFIX + GROUP);
+        // 获取群组离线消息;
+        if (CollectionUtils.isNotEmpty(groupIdList)) {
+            groupIdList.forEach(groupId -> {
+                UserMessageData groupMessageData = getGroupOfflineMessageOfLastMsgId(userId, groupId, endTime);
+                if (Objects.isNull(groupMessageData)) {
+                    return;
+                }
+                putGroupMessage(messageData, groupMessageData.getGroups().get(groupId));
+            });
+        }
+        return messageData;
+    }
+
     /**
+     * 获取用户 群离线消息
      *
+     * @param userId
+     * @return
+     */
+    public UserMessageData getGroupsOfflineMessageOfLastMsgId(String userId) {
+        return getGroupsOfflineMessageOfLastMsgId(userId, (double) System.currentTimeMillis());
+    }
+
+    /**
      * @param userId
      * @param groupId
      * @return
      */
     public List<ChatBody> getGroupOfflineChatBodyMessage(String userId, String groupId) {
         List<String> messages =
-            RedisCacheManager.getCache(PUSH).sortSetGetAll(GROUP + SUFFIX + groupId + SUFFIX + userId);
+                RedisCacheManager.getCache(PUSH).sortSetGetAll(GROUP + SUFFIX + groupId + SUFFIX + userId);
         if (CollectionUtils.isEmpty(messages)) {
             return null;
         }
@@ -990,14 +1025,13 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param groupId
      * @return
      */
     public List<ChatBody> getGroupOfflineChatBodyMessage(String userId, String groupId, double min, double max) {
         List<String> messages =
-            RedisCacheManager.getCache(PUSH).sortSetGetAll(GROUP + SUFFIX + groupId + SUFFIX + userId, min, max);
+                RedisCacheManager.getCache(PUSH).sortSetGetAll(GROUP + SUFFIX + groupId + SUFFIX + userId, min, max);
         if (CollectionUtils.isEmpty(messages)) {
             return null;
         }
@@ -1005,7 +1039,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param groupId
      * @return
@@ -1014,7 +1047,30 @@ public class LocalCacheUtils implements ImConst, Serializable {
         UserMessageData messageData = new UserMessageData(userId);
         try {
             List<String> messages =
-                RedisCacheManager.getCache(PUSH).sortSetGetAll(GROUP + SUFFIX + groupId + SUFFIX + userId);
+                    RedisCacheManager.getCache(PUSH).sortSetGetAll(GROUP + SUFFIX + groupId + SUFFIX + userId);
+            if (CollectionUtils.isEmpty(messages)) {
+                return messageData;
+            }
+            putGroupMessage(messageData, JsonKit.toArray(messages, ChatBody.class));
+            return messageData;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return messageData;
+        }
+    }
+
+    /**
+     * @param userId
+     * @param groupId
+     * @return
+     */
+    public UserMessageData getGroupOfflineMessageOfLastMsgId(String userId, String groupId, Double endTime) {
+        UserMessageData messageData = new UserMessageData(userId);
+        try {
+            String key = GROUP + SUFFIX + groupId + SUFFIX + userId;
+            Long createTime = RedisCacheManager.getCache(PUSH_LAST_ID).get(key, Long.class);
+            List<String> messages =
+                    RedisCacheManager.getCache(STORE).sortSetGetAll(GROUP + SUFFIX + groupId, createTime == null ? 0 : createTime + 1, endTime == null ? System.currentTimeMillis() : endTime);
             if (CollectionUtils.isEmpty(messages)) {
                 return messageData;
             }
@@ -1081,7 +1137,7 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     public UserMessageData getFriendHistoryMessage(String userId, String fromUserId, Double beginTime, Double endTime,
-        Integer offset, Integer count) {
+                                                   Integer offset, Integer count) {
         String sessionId = ChatKit.sessionId(userId, fromUserId);
         String userSessionKey = USER + SUFFIX + sessionId;
         List<String> messages = getHistoryMessage(userSessionKey, beginTime, endTime, offset, count);
@@ -1101,7 +1157,7 @@ public class LocalCacheUtils implements ImConst, Serializable {
      * @return
      */
     private List<String> getHistoryMessage(String historyKey, Double beginTime, Double endTime, Integer offset,
-        Integer count) {
+                                           Integer count) {
         boolean isTimeBetween = (beginTime != null && endTime != null);
         boolean isPage = (offset != null && count != null);
         RedisCache storeCache = RedisCacheManager.getCache(STORE);
@@ -1121,7 +1177,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param groupId
      * @param beginTime
@@ -1131,7 +1186,7 @@ public class LocalCacheUtils implements ImConst, Serializable {
      * @return
      */
     public UserMessageData getGroupHistoryMessage(String userId, String groupId, Double beginTime, Double endTime,
-        Integer offset, Integer count) {
+                                                  Integer offset, Integer count) {
         String groupKey = GROUP + SUFFIX + groupId;
         List<String> messages = getHistoryMessage(groupKey, beginTime, endTime, offset, count);
         UserMessageData messageData = new UserMessageData(userId);
@@ -1140,7 +1195,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param user
      */
     public void updateUserTerminal(User user) {
@@ -1155,7 +1209,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -1167,7 +1220,7 @@ public class LocalCacheUtils implements ImConst, Serializable {
         if (list != null && list.size() > 0) {
             for (String msgId : list) {
                 MsgNoticeRespBody msg = RedisCacheManager.getCache(USER)
-                    .get(MSG + SUFFIX + INFO + SUFFIX + userId + SUFFIX + msgId, MsgNoticeRespBody.class);
+                        .get(MSG + SUFFIX + INFO + SUFFIX + userId + SUFFIX + msgId, MsgNoticeRespBody.class);
                 if (msg != null) {
                     msgList.add(msg);
                 }
@@ -1177,7 +1230,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param noticeMsgId
      * @param noticeUserId
      */
@@ -1190,7 +1242,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param msgNoticeRespBody
      * @return
      */
@@ -1201,12 +1252,11 @@ public class LocalCacheUtils implements ImConst, Serializable {
         String userApplyKey = noticeUserId + SUFFIX + APPLY;
         RedisCacheManager.getCache(USER).listPushTail(userApplyKey, noticeMsgId);
         RedisCacheManager.getCache(USER).put(MSG + SUFFIX + INFO + SUFFIX + noticeUserId + SUFFIX + noticeMsgId,
-            msgNoticeRespBody);
+                msgNoticeRespBody);
         return msgNoticeRespBody;
     }
 
     /**
-     *
      * @param topicName
      * @return
      */
@@ -1225,7 +1275,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @return
      */
     public List<String> findAllTopicName() {
@@ -1238,7 +1287,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      * @param loginUser
      */
@@ -1247,7 +1295,6 @@ public class LocalCacheUtils implements ImConst, Serializable {
     }
 
     /**
-     *
      * @param userId
      */
     public LoginUser getUserAuth(String timelineTable, String userId) {
@@ -1261,6 +1308,7 @@ public class LocalCacheUtils implements ImConst, Serializable {
         RedisCacheManager.register(STORE, Integer.MAX_VALUE, Integer.MAX_VALUE);
         RedisCacheManager.register(PUSH, Integer.MAX_VALUE, Integer.MAX_VALUE);
         RedisCacheManager.register(PUSH_ACK_FAIL, CACHE_TIME_OUT_100, CACHE_TIME_OUT_100);
+        RedisCacheManager.register(PUSH_LAST_ID, Integer.MAX_VALUE, Integer.MAX_VALUE);
         RedisCacheManager.register(USER_TOKEN, CACHE_TIME_OUT_7, CACHE_TIME_OUT_7);
         RedisCacheManager.register(USER_VERSION_INFO, CACHE_TIME_OUT_10, CACHE_TIME_OUT_10);
         RedisCacheManager.register(TOPIC_NAME, Integer.MAX_VALUE, Integer.MAX_VALUE);

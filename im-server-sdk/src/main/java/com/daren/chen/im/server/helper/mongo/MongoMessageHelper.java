@@ -112,6 +112,11 @@ public class MongoMessageHelper implements MessageHelper {
     }
 
     @Override
+    public UserMessageData getFriendsOfflineMessageOfLastsgId(String operateUserId, String userId, Double endTime) {
+        return null;
+    }
+
+    @Override
     public UserMessageData getGroupOfflineMessage(String operateUserId, String userId, String groupId) {
         return null;
     }

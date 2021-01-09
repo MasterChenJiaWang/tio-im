@@ -7,9 +7,9 @@
         <groupId>com.daren.chen</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>springboot</artifactId>
+    <artifactId>im-server-springboot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>springboot</name>
+    <name>im-server-springboot</name>
     <description>im 服务端 springboot 项目</description>
 
     <properties>

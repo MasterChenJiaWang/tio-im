@@ -1,17 +1,6 @@
 package com.daren.chen.im.server.springboot.helper.redis;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.daren.chen.im.core.ImChannelContext;
 import com.daren.chen.im.core.ImPacket;
 import com.daren.chen.im.core.cache.redis.RedisCacheManager;
@@ -36,8 +25,17 @@ import com.daren.chen.im.server.JimServerAPI;
 import com.daren.chen.im.server.helper.redis.RedisMessageHelper;
 import com.daren.chen.im.server.protocol.ProtocolManager;
 import com.daren.chen.im.server.springboot.utils.ApplicationContextProvider;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Redis获取持久化+同步消息助手;
@@ -85,12 +83,12 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      * @param chatBody
      */
     @Override
+    @Deprecated
     public void saveNoReadMessage(String timelineTable, String timelineId, ChatBody chatBody) {
         if (chatBody == null) {
             return;
@@ -105,11 +103,11 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      */
     @Override
+    @Deprecated
     public void removeNoReadMessage(String timelineTable, String timelineId) {
         LocalCacheUtils.me().removeNoReadMessage(timelineTable, timelineId);
     }
@@ -182,20 +180,18 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     /**
      * 获取好友离线消息
      *
-     * @param userId
-     *            用户ID
-     * @param fromUserId
-     *            目标用户ID
+     * @param userId     用户ID
+     * @param fromUserId 目标用户ID
      * @return
      */
     @Override
     public UserMessageData getFriendsOfflineMessage(String operateUserId, String userId, String fromUserId) {
-        List<ChatBody> messageDataList = LocalCacheUtils.me().getFriendsOfflineMessage(userId, fromUserId);
+//        List<ChatBody> messageDataList = LocalCacheUtils.me().getFriendsOfflineMessage(userId, fromUserId);
+        List<ChatBody> messageDataList = LocalCacheUtils.me().getFriendsOfflineMessageOfLastMsgId(userId, fromUserId,null);
         return LocalCacheUtils.me().putFriendsMessage(new UserMessageData(userId), messageDataList, null);
     }
 
     /**
-     *
      * @param userId
      * @return
      */
@@ -217,6 +213,28 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         }
         return messageData;
     }
+    /**
+     * @param userId
+     * @return
+     */
+    private UserMessageData getFriendsOfflineMessageFromCacheOfLastMsgId(String userId,Double endTime) {
+        UserMessageData messageData = new UserMessageData(userId);
+        try {
+            // 获取所有好友消息key
+            UserMessageData friendsOfflineMessage = LocalCacheUtils.me().getFriendsOfflineMessageOfLastMsgId(userId,endTime);
+            if (friendsOfflineMessage != null) {
+                messageData.setFriends(friendsOfflineMessage.getFriends());
+            }
+            // 获取该用户所有组ID
+            UserMessageData userMessageData = LocalCacheUtils.me().getGroupsOfflineMessageOfLastMsgId(userId);
+            if (userMessageData != null) {
+                messageData.setGroups(userMessageData.getGroups());
+            }
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return messageData;
+    }
 
     /**
      * 获取用户的离线消息
@@ -229,13 +247,30 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         // 先查redis缓存
         UserMessageData userMessageData = getFriendsOfflineMessageFromCache(userId);
         if ((userMessageData.getGroups() != null && !userMessageData.getGroups().isEmpty())
-            || (userMessageData.getFriends() != null && !userMessageData.getFriends().isEmpty())) {
+                || (userMessageData.getFriends() != null && !userMessageData.getFriends().isEmpty())) {
             return userMessageData;
         }
         // 从数据库查询
         if (isSqlSave) {
             ChatCommonMethodUtils chatCommonMethodUtils =
-                ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+            return chatCommonMethodUtils.getOfflineMessage(operateUserId, userId);
+        }
+        return userMessageData;
+    }
+
+    @Override
+    public UserMessageData getFriendsOfflineMessageOfLastsgId(String operateUserId, String userId, Double endTime) {
+        // 先查redis缓存
+        UserMessageData userMessageData = getFriendsOfflineMessageFromCacheOfLastMsgId(userId,endTime);
+        if ((userMessageData.getGroups() != null && !userMessageData.getGroups().isEmpty())
+                || (userMessageData.getFriends() != null && !userMessageData.getFriends().isEmpty())) {
+            return userMessageData;
+        }
+        // 从数据库查询
+        if (isSqlSave) {
+            ChatCommonMethodUtils chatCommonMethodUtils =
+                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
             return chatCommonMethodUtils.getOfflineMessage(operateUserId, userId);
         }
         return userMessageData;
@@ -250,7 +285,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
      */
     @Override
     public UserMessageData getGroupOfflineMessage(String operateUserId, String userId, String groupId) {
-        return LocalCacheUtils.me().getGroupOfflineMessage(userId, groupId);
+        return LocalCacheUtils.me().getGroupOfflineMessageOfLastMsgId(userId, groupId,null);
         // 查数据库
     }
 
@@ -267,7 +302,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
      */
     @Override
     public UserMessageData getFriendHistoryMessage(String operateUserId, String userId, String fromUserId,
-        Double beginTime, Double endTime, Integer offset, Integer count) {
+                                                   Double beginTime, Double endTime, Integer offset, Integer count) {
         return LocalCacheUtils.me().getFriendHistoryMessage(userId, fromUserId, beginTime, endTime, offset, count);
         // 查数据库
     }
@@ -285,7 +320,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
      */
     @Override
     public UserMessageData getGroupHistoryMessage(String operateUserId, String userId, String groupId, Double beginTime,
-        Double endTime, Integer offset, Integer count) {
+                                                  Double endTime, Integer offset, Integer count) {
         return LocalCacheUtils.me().getGroupHistoryMessage(userId, groupId, beginTime, endTime, offset, count);
         // 查数据库
     }
@@ -310,23 +345,49 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         if (StringUtils.isNotBlank(groupId)) {
             groupMemberId = userId;
         }
+        //
+        updateLastMsgId(userId, chatBody);
+//        updateAndRemoveOffLineMessage(userId, chatBody);
         // 修改数据库
         if (isSqlSave) {
             ChatCommonMethodUtils chatCommonMethodUtils =
-                ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
             return chatCommonMethodUtils.updateLastMsgId(operateUserId, from, to, groupId, groupMemberId, id);
         }
-        //
-        updateAndRemoveOffLineMessage(userId, chatBody);
-
         return true;
     }
 
+
     /**
+     * 修改最后id
+     * 存储消息时间
      *
      * @param userId
      * @param chatBody
+     * @return
      */
+    private boolean updateLastMsgId(String userId, ChatAckBody chatBody) {
+        String groupId = chatBody.getGroupId();
+        // 群消息
+        String key = "";
+        if (StringUtils.isNotBlank(groupId)) {
+            key = GROUP + SUFFIX + groupId + SUFFIX + userId;
+        } else {
+            key = USER + ":" + userId + ":" + chatBody.getFrom();
+        }
+        Long createTime = RedisCacheManager.getCache(PUSH_LAST_ID).get(key, Long.class);
+        if (createTime ==null || createTime<chatBody.getCreateTime()) {
+            RedisCacheManager.getCache(PUSH_LAST_ID).put(key, chatBody.getCreateTime());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param userId
+     * @param chatBody
+     */
+    @Deprecated
     private boolean updateAndRemoveOffLineMessage(String userId, ChatAckBody chatBody) {
         if (chatBody == null) {
             return false;
@@ -431,7 +492,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     }
 
     private boolean checkCountAndClear(List<ChatBody> messageDataList, List<String> msgIds,
-        List<ChatBody> oldOfflineMesage) {
+                                       List<ChatBody> oldOfflineMesage) {
         if (oldOfflineMesage == null) {
             oldOfflineMesage = new ArrayList<>(msgIds.size());
         }
@@ -451,8 +512,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     /**
      * 获取群组所有成员信息
      *
-     * @param groupId
-     *            群组ID
+     * @param groupId                               群组ID
      * @param type(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线])
      * @return
      */
@@ -467,7 +527,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         if (group == null || group.getUsers() == null) {
             if (isSqlSave) {
                 ChatCommonMethodUtils chatCommonMethodUtils =
-                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                        ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
                 group = chatCommonMethodUtils.getGroupById(operateUserId, groupId);
             }
             if (group != null) {
@@ -475,7 +535,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
                 List<User> users = group.getUsers();
                 if (CollectionUtils.isNotEmpty(users)) {
                     List<String> collect = users.stream().filter(user -> StringUtils.isNotBlank(user.getUserId()))
-                        .map(User::getUserId).collect(Collectors.toList());
+                            .map(User::getUserId).collect(Collectors.toList());
                     //
                     LocalCacheUtils.me().saveGroupUserIdsByCache(groupId, collect);
                 }
@@ -526,8 +586,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     /**
      * 获取用户基础信息
      *
-     * @param userId
-     *            用户ID
+     * @param userId                                用户ID
      * @param type(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线])
      * @return
      */
@@ -538,7 +597,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         if (Objects.isNull(user)) {
             if (isSqlSave) {
                 ChatCommonMethodUtils chatCommonMethodUtils =
-                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                        ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
                 user = chatCommonMethodUtils.getUserById(operateUserId, userId);
             }
             if (user != null) {
@@ -584,8 +643,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     /**
      * 获取好友分组所有成员信息
      *
-     * @param userId
-     *            用户ID
+     * @param userId                                用户ID
      * @param type(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线])
      * @return
      */
@@ -601,7 +659,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
             List<User> friends = new ArrayList<>();
             if (isSqlSave) {
                 ChatCommonMethodUtils chatCommonMethodUtils =
-                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                        ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
                 friends = refreshFriends(operateUserId, userId, chatCommonMethodUtils);
             }
 
@@ -633,7 +691,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
             List<User> friends = new ArrayList<>();
             if (isSqlSave) {
                 ChatCommonMethodUtils chatCommonMethodUtils =
-                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                        ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
                 friends = refreshFriends(operateUserId, userId, chatCommonMethodUtils);
             }
 
@@ -647,9 +705,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     }
 
     /**
-     *
-     * @param userId
-     *            用户ID
+     * @param userId                                用户ID
      * @param type(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线])
      * @return
      */
@@ -662,7 +718,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         if (CollectionUtil.isEmpty(groupIds)) {
             if (isSqlSave) {
                 ChatCommonMethodUtils chatCommonMethodUtils =
-                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                        ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
                 groupIds = chatCommonMethodUtils.getAllGroupUsers(operateUserId, userId);
             }
             LocalCacheUtils.me().saveUserGroupIdsByCache(userId, groupIds);
@@ -684,8 +740,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     /**
      * 更新用户终端协议类型及在线状态;
      *
-     * @param user
-     *            用户信息
+     * @param user 用户信息
      */
     @Override
     public boolean updateUserTerminal(String operateUserId, User user) {
@@ -807,12 +862,12 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         boolean success = true;
         if (isSqlSave) {
             ChatCommonMethodUtils chatCommonMethodUtils =
-                ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
             Group groupInfo = chatCommonMethodUtils.getGroupById(operateUserId, groupId);
             result.put("user_ids", userIds);
             result.put("group_info", groupInfo);
             success = chatCommonMethodUtils.disbandGroup(operateUserId, msgNoticeReq.getCurUserId(),
-                msgNoticeReq.getNoticeGroupId());
+                    msgNoticeReq.getNoticeGroupId());
         }
         if (success) {
             LocalCacheUtils.me().removeGroupUserIdsByCache(groupId);
@@ -824,20 +879,19 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     }
 
     /**
-     *
      * @param userId
      * @param friendList
      * @param imChannelContext
      * @throws ImException
      */
     private void notifyFriendsOffline(String userId, List<User> friendList, ImChannelContext imChannelContext)
-        throws ImException {
+            throws ImException {
 
         GetUserOnlineStatusRespBody getUserOnlineStatusRespBody = new GetUserOnlineStatusRespBody();
         getUserOnlineStatusRespBody.setUserId(userId);
         getUserOnlineStatusRespBody.setStatus(UserStatusType.OFFLINE.getStatus());
         GetUserOnlineStatusRespBody getUserOnlineStatusRespBody1 =
-            GetUserOnlineStatusRespBody.success(userId).setData(getUserOnlineStatusRespBody);
+                GetUserOnlineStatusRespBody.success(userId).setData(getUserOnlineStatusRespBody);
         ImPacket imPacket = ProtocolManager.Converter.respPacket(getUserOnlineStatusRespBody1, imChannelContext);
         if (friendList != null) {
             for (User user : friendList) {
@@ -864,16 +918,15 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     /**
      * 新增用户在线记录
      *
-     * @param paramMap
-     *            map参数: user_id:用户ID, online_status:在线状态（0：在线，1：离线） , phone_imei:手机imei, sys_version:系统版本,
-     *            app_version:app版本, terminal_type:终端类型(0：andriod，1：IOS), context_id:上下文id, report_ime:上下线记录时间(年月日时分秒)
+     * @param paramMap map参数: user_id:用户ID, online_status:在线状态（0：在线，1：离线） , phone_imei:手机imei, sys_version:系统版本,
+     *                 app_version:app版本, terminal_type:终端类型(0：andriod，1：IOS), context_id:上下文id, report_ime:上下线记录时间(年月日时分秒)
      * @return
      */
     @Override
     public boolean addUserOnlineStatusRecord(String operateUserId, Map<String, Object> paramMap) {
         if (isSqlSave) {
             ChatCommonMethodUtils chatCommonMethodUtils =
-                ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
             return chatCommonMethodUtils.addUserOnlineStatusRecord(operateUserId, paramMap);
         }
         return true;
@@ -932,7 +985,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
      * @param chatCommonMethodUtils
      */
     private List<User> refreshFriends(String operateUserId, String userId,
-        ChatCommonMethodUtils chatCommonMethodUtils) {
+                                      ChatCommonMethodUtils chatCommonMethodUtils) {
         if (!isSqlSave || chatCommonMethodUtils == null) {
             return null;
         }
@@ -966,7 +1019,7 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
         if (groups == null || groups.size() == 0) {
             if (isSqlSave) {
                 ChatCommonMethodUtils chatCommonMethodUtils =
-                    ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
+                        ApplicationContextProvider.getBean(ChatCommonMethodUtils.class);
                 groups = chatCommonMethodUtils.getAllGroupUsers(operateUserId, userId);
             }
             LocalCacheUtils.me().saveUserGroupIdsByCache(userId, groups);
@@ -975,7 +1028,6 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     }
 
     /**
-     *
      * @param key
      * @param loginUser
      */
@@ -985,7 +1037,6 @@ public class ChatRedisMessageHelper extends AbstractMessageHelper {
     }
 
     /**
-     *
      * @param key
      */
     @Override

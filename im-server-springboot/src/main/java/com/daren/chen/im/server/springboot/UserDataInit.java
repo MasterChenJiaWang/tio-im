@@ -51,10 +51,10 @@ public class UserDataInit implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         // 等待初始化完成
         Thread.sleep(3000);
-        // //
-        // List<User> users = read();
-        // //
-        // save(users);
+//         //
+//         List<User> users = read();
+//         //
+//         save(users);
     }
 
     private void save(List<User> users) {

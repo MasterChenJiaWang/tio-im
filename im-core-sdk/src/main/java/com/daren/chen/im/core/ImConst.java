@@ -280,7 +280,7 @@ public interface ImConst {
     String SYSTEM = "system";
     String TOPIC = "topic";
 
-    String LAST_ID = "lastId";
+    String PUSH_LAST_ID = "lastId";
     /**
      *
      */

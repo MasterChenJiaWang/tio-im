@@ -1,9 +1,5 @@
 package com.daren.chen.im.server.processor.chat;
 
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.daren.chen.im.core.ImChannelContext;
 import com.daren.chen.im.core.config.ImConfig;
 import com.daren.chen.im.core.message.MessageHelper;
@@ -16,6 +12,7 @@ import com.daren.chen.im.server.config.ImServerConfig;
 import com.daren.chen.im.server.processor.SingleProtocolCmdProcessor;
 import com.daren.chen.im.server.service.AuthCacheService;
 import com.daren.chen.im.server.util.ChatKit;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author WChao
@@ -36,7 +33,6 @@ public abstract class BaseAsyncChatMessageProcessor implements SingleProtocolCmd
     protected abstract void doChatAck(ChatAckBody chatAckBody, ImChannelContext imChannelContext);
 
     /**
-     *
      * @param noticeAckBody
      * @param imChannelContext
      */
@@ -44,7 +40,7 @@ public abstract class BaseAsyncChatMessageProcessor implements SingleProtocolCmd
 
     @Override
     public void process(ImChannelContext imChannelContext, Message message) {
-        ChatBody chatBody = (ChatBody)message;
+        ChatBody chatBody = (ChatBody) message;
         // 设置请求线程
         String userId = chatBody.getFrom();
         if (StringUtils.isNotBlank(userId)) {
@@ -59,10 +55,11 @@ public abstract class BaseAsyncChatMessageProcessor implements SingleProtocolCmd
             } else {
                 String from = chatBody.getFrom();
                 String to = chatBody.getTo();
-                String sessionId = ChatKit.sessionId(from, to);
-                writeMessage(STORE, USER + ":" + sessionId, chatBody);
+//                String sessionId = ChatKit.sessionId(from, to);
+//                writeMessage(STORE, USER + ":" + sessionId, chatBody);
+                writeMessage(STORE, USER + ":" + to + ":" + from, chatBody);
                 //
-                writeNoReadMessage(PUSH, USER + ":" + to + ":" + from, chatBody);
+//                writeNoReadMessage(PUSH, USER + ":" + to + ":" + from, chatBody);
             }
         }
         doProcess(chatBody, imChannelContext);
@@ -70,7 +67,7 @@ public abstract class BaseAsyncChatMessageProcessor implements SingleProtocolCmd
 
     @Override
     public void chatAck(ImChannelContext imChannelContext, Message message) {
-        ChatAckBody chatAckBody = (ChatAckBody)message;
+        ChatAckBody chatAckBody = (ChatAckBody) message;
         // 开启持久化
         boolean isStore = ImServerConfig.ON.equals(imServerConfig.getIsStore());
         if (isStore) {
@@ -81,7 +78,7 @@ public abstract class BaseAsyncChatMessageProcessor implements SingleProtocolCmd
 
     @Override
     public void noticeAck(ImChannelContext imChannelContext, Message message) {
-        NoticeAckBody noticeAckBody = (NoticeAckBody)message;
+        NoticeAckBody noticeAckBody = (NoticeAckBody) message;
         // 开启持久化
         boolean isStore = ImServerConfig.ON.equals(imServerConfig.getIsStore());
         if (isStore) {
@@ -102,16 +99,15 @@ public abstract class BaseAsyncChatMessageProcessor implements SingleProtocolCmd
         String groupId = chatBody.getGroupId();
         // 先将群消息持久化到存储Timeline;
         writeMessage(storeTable, GROUP + ":" + groupId, chatBody);
-        // //
-        List<String> userIds = messageHelper.getGroupUsers(operateUserId, groupId);
-        // 通过写扩散模式将群消息同步到所有的群成员
-        for (String userId : userIds) {
-            writeNoReadMessage(pushTable, GROUP + ":" + groupId + ":" + userId, chatBody);
-        }
+//        // //
+//        List<String> userIds = messageHelper.getGroupUsers(operateUserId, groupId);
+//        // 通过写扩散模式将群消息同步到所有的群成员
+//        for (String userId : userIds) {
+//            writeNoReadMessage(pushTable, GROUP + ":" + groupId + ":" + userId, chatBody);
+//        }
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      * @param chatBody
@@ -122,7 +118,6 @@ public abstract class BaseAsyncChatMessageProcessor implements SingleProtocolCmd
     }
 
     /**
-     *
      * @param timelineTable
      * @param timelineId
      * @param chatBody

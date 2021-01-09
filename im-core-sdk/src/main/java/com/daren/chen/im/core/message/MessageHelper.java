@@ -190,6 +190,15 @@ public interface MessageHelper {
      */
     UserMessageData getFriendsOfflineMessage(String operateUserId, String userId);
 
+
+    /**
+     * 获取与所有用户离线消息;
+     *
+     * @param userId
+     *            用户ID
+     * @return
+     */
+    UserMessageData getFriendsOfflineMessageOfLastsgId(String operateUserId, String userId,Double endTime);
     /**
      * 获取用户指定群组离线消息;
      *

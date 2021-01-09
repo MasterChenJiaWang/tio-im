@@ -1,14 +1,6 @@
 package com.daren.chen.im.server.command.handler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.daren.chen.im.core.ImChannelContext;
 import com.daren.chen.im.core.ImPacket;
 import com.daren.chen.im.core.ImStatus;
@@ -24,8 +16,14 @@ import com.daren.chen.im.core.utils.JsonKit;
 import com.daren.chen.im.server.command.AbstractCmdHandler;
 import com.daren.chen.im.server.config.ImServerConfig;
 import com.daren.chen.im.server.protocol.ProtocolManager;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 获取聊天消息命令处理器
@@ -79,7 +77,7 @@ public class MessageReqHandler extends AbstractCmdHandler {
             int type = messageReqBody.getType();
             // 如果用户ID为空或者type格式不正确，获取消息失败;
             if (StringUtils.isEmpty(userId) || (0 != type && 1 != type)
-                || !ImServerConfig.ON.equals(imServerConfig.getIsStore())) {
+                    || !ImServerConfig.ON.equals(imServerConfig.getIsStore())) {
                 return getMessageFailedPacket(imChannelContext);
             }
             if (type == 0) {
@@ -95,7 +93,7 @@ public class MessageReqHandler extends AbstractCmdHandler {
                     // 历史消息;
                 } else if (1 == type) {
                     messageData = messageHelper.getGroupHistoryMessage(imChannelContext.getUserId(), userId, groupId,
-                        beginTime, endTime, offset, count);
+                            beginTime, endTime, offset, count);
                 }
             } else if (StringUtils.isEmpty(fromUserId)) {
                 // 获取用户所有离线消息(好友+群组);
@@ -107,11 +105,11 @@ public class MessageReqHandler extends AbstractCmdHandler {
             } else {
                 // 获取与指定用户离线消息;
                 if (0 == type) {
-                    messageData = messageHelper.getFriendsOfflineMessage(userId, fromUserId);
+                    messageData = messageHelper.getFriendsOfflineMessageOfLastsgId(userId, fromUserId, endTime);
                     // 获取与指定用户历史消息;
                 } else if (1 == type) {
                     messageData = messageHelper.getFriendHistoryMessage(imChannelContext.getUserId(), userId,
-                        fromUserId, beginTime, endTime, offset, count);
+                            fromUserId, beginTime, endTime, offset, count);
                 }
             }
             // //
@@ -152,7 +150,6 @@ public class MessageReqHandler extends AbstractCmdHandler {
     }
 
     /**
-     *
      * @param messageData
      * @return
      */

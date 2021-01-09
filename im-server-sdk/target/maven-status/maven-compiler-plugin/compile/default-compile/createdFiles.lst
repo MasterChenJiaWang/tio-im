@@ -32,7 +32,6 @@ com\daren\chen\im\server\command\handler\NoticeOfflineReqHandler.class
 com\daren\chen\im\server\command\handler\ExitGroupReqHandler.class
 com\daren\chen\im\server\config\ImServerConfig.class
 com\daren\chen\im\server\protocol\ProtocolManager$Converter.class
-com\daren\chen\im\server\util\JpushClientUtil.class
 com\daren\chen\im\server\command\CmdHandler.class
 com\daren\chen\im\server\command\handler\userInfo\NonPersistentUserInfo.class
 com\daren\chen\im\server\command\handler\userInfo\PersistentUserInfo.class

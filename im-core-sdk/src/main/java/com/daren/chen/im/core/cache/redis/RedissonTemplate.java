@@ -7,7 +7,6 @@ import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
-import org.redisson.config.SingleServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +71,9 @@ public class RedissonTemplate implements Serializable {
                 int port = redisConfig.getPort();
                 String password = redisConfig.getAuth();
                 Config redissonConfig = new Config();
-                SingleServerConfig singleServerConfig = redissonConfig.useSingleServer();
-                singleServerConfig.setAddress(REDIS + "://" + host + ":" + port).setPassword(password)
-                    .setTimeout(redisConfig.getTimeout()).setRetryAttempts(redisConfig.getRetryNum());
+                redissonConfig.useSingleServer().setAddress(REDIS + "://" + host + ":" + port).setPassword(password)
+                    .setDatabase(redisConfig.getDatabase()).setTimeout(redisConfig.getTimeout())
+                    .setRetryAttempts(redisConfig.getRetryNum());
                 redissonClient = Redisson.create(redissonConfig);
             }
 

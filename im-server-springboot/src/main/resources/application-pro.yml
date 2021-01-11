@@ -42,6 +42,8 @@ jim:
     port: ${REDIS_PORT:6379}
     #redis密码  集群下 每个密码必须相同
     auth: ${REDIS_AUTH:}
+    #redis db  集群失效
+    database: ${REDIS_DATABASE:11}
     retrynum: ${REDIS_RETRYNUM:300}
     maxactive: ${REDIS_MAXACTIVE:1}
     maxidle: ${REDIS_MAXIDLE:20}

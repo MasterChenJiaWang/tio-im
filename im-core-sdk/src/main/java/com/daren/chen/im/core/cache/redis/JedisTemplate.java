@@ -68,11 +68,11 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
         poolConfig.setTestOnReturn(true);
         try {
             if (StringUtils.isEmpty(redisConfig.getAuth())) {
-                jedisPool =
-                    new JedisPool(poolConfig, redisConfig.getHost(), redisConfig.getPort(), redisConfig.getTimeout());
+                jedisPool = new JedisPool(poolConfig, redisConfig.getHost(), redisConfig.getPort(),
+                    redisConfig.getTimeout(), null, redisConfig.getDatabase());
             } else {
                 jedisPool = new JedisPool(poolConfig, redisConfig.getHost(), redisConfig.getPort(),
-                    redisConfig.getTimeout(), redisConfig.getAuth());
+                    redisConfig.getTimeout(), redisConfig.getAuth(), redisConfig.getDatabase());
             }
         } catch (Exception e) {
             logger.error("cann't create JedisPool for server" + redisConfig.getHost());
@@ -100,18 +100,12 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            if (jedis != null) {
-                jedis.close();
-            }
-        } finally {
         }
         if (jedis != null) {
             return jedis;
         }
-
         int count = 0;
         do {
             jedis = jedisPool.getResource();
@@ -154,9 +148,7 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
             } catch (Throwable e) {
                 throw new RuntimeException("Redis execute exception", e);
             } finally {
-                if (jedis != null) {
-                    jedis.close();
-                }
+                close(jedis);
             }
             return result;
         }

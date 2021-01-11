@@ -38,6 +38,8 @@ jim:
     host: ${REDIS_HOST:127.0.0.1}
     port: ${REDIS_PORT:6379}
     auth: ${REDIS_AUTH:}
+    #redis db  集群失效
+    database: ${REDIS_DATABASE:11}
     retrynum: ${REDIS_RETRYNUM:300}
     maxactive: ${REDIS_MAXACTIVE:1}
     maxidle: ${REDIS_MAXIDLE:20}

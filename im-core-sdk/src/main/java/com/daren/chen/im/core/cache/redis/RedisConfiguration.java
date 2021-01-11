@@ -1,5 +1,6 @@
 package com.daren.chen.im.core.cache.redis;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +11,7 @@ import com.daren.chen.im.core.config.Config;
  * @author WChao
  * @date 2018年3月9日 上午1:09:03
  */
-public class RedisConfiguration {
+public class RedisConfiguration implements Serializable {
 
     private int retryNum = 100;
     private int maxActive = 100;
@@ -20,7 +21,10 @@ public class RedisConfiguration {
     private String auth;
     private String host = "";
     private int port = 0;
-
+    /**
+     * 数据库
+     */
+    private int database = 0;
     /**
      * 是否集群
      */
@@ -73,6 +77,7 @@ public class RedisConfiguration {
         this.port = redis.getPort();
         this.cluster = redis.isCluster();
         this.clusterAddr = redis.getClusterAddr();
+        this.database = redis.getDatabase();
     }
 
     public int getRetryNum() {
@@ -137,6 +142,14 @@ public class RedisConfiguration {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public int getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(int database) {
+        this.database = database;
     }
 
     public String getClusterAddr() {

@@ -268,6 +268,11 @@ public class Config implements Serializable {
          *
          */
         private Integer port = 6379;
+
+        /**
+         * 数据库
+         */
+        private int database = 0;
         /**
          *
          */
@@ -345,6 +350,14 @@ public class Config implements Serializable {
 
         public void setAuth(String auth) {
             this.auth = auth;
+        }
+
+        public int getDatabase() {
+            return database;
+        }
+
+        public void setDatabase(int database) {
+            this.database = database;
         }
 
         public String getClusterAddr() {

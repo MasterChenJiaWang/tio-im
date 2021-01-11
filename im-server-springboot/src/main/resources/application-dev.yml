@@ -1,19 +1,19 @@
 spring:
-  #
-  rabbitmq:
-    publisher-confirm-type: correlated
-    virtual-host: dev-mq
-    host: 127.0.0.1
-    port: 5672
-    username: admin
-    password: 123456
-    listener:
-      simple:
-        acknowledge-mode: manual
-        prefetch: 1
-    connection-timeout: 10000ms
-    template:
-      mandatory: true
+#  #
+#  rabbitmq:
+#    publisher-confirm-type: correlated
+#    virtual-host: dev-mq
+#    host: 127.0.0.1
+#    port: 5672
+#    username: admin
+#    password: 123456
+#    listener:
+#      simple:
+#        acknowledge-mode: manual
+#        prefetch: 1
+#    connection-timeout: 10000ms
+#    template:
+#      mandatory: true
 
 
 #JIM  自定义配置
@@ -41,7 +41,9 @@ jim:
     #redis  集群失效
     port: ${REDIS_PORT:6379}
     #redis密码  集群下 每个密码必须相同
-    auth: ${REDIS_AUTH:}
+    auth: ${REDIS_AUTH:123456}
+    #redis db  集群失效
+    database: ${REDIS_DATABASE:10}
     retrynum: ${REDIS_RETRYNUM:300}
     maxactive: ${REDIS_MAXACTIVE:1}
     maxidle: ${REDIS_MAXIDLE:20}

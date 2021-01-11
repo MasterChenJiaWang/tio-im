@@ -28,7 +28,6 @@
         <spring.cloud.alibaba.version>2.1.0.RELEASE</spring.cloud.alibaba.version>
         <jim.version>3.0.0.v20200501-RELEASE</jim.version>
         <!--        <tio-core.version>3.7.0.v20201010-RELEASE</tio-core.version>-->
-        <!-- 自己修改了 tio 的源码   -->
         <tio-core.version>3.7.0.v20201010-RELEASE</tio-core.version>
         <tio-utils.version>3.7.0.v20201010-RELEASE</tio-utils.version>
         <lombok.version>1.18.12</lombok.version>

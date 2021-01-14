@@ -39,7 +39,7 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
     /**
      * Redis发布/订阅Topic
      */
-    public RTopic<ImClusterVO> rTopic;
+    public RTopic rTopic;
 
     /**
      * 收到了多少次topic
@@ -63,7 +63,7 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
         }
         RedisClusterConfig me = new RedisClusterConfig(topicSuffix, redissonClient);
         me.rTopic = redissonClient.getTopic(me.topic);
-        me.rTopic.addListener(messageListener);
+        me.rTopic.addListener(ImClusterVO.class, messageListener);
         return me;
     }
 
@@ -107,11 +107,11 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
         this.redissonClient = redissonClient;
     }
 
-    public RTopic<ImClusterVO> getRTopic() {
+    public RTopic getRTopic() {
         return rTopic;
     }
 
-    public void setRTopic(RTopic<ImClusterVO> rTopic) {
+    public void setRTopic(RTopic rTopic) {
         this.rTopic = rTopic;
     }
 

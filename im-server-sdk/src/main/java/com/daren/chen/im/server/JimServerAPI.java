@@ -121,11 +121,6 @@ public class JimServerAPI implements ImConst {
     public static Boolean sendToGroup(String groupId, ImPacket packet) {
         List<ImChannelContext> imChannelContextList = getByGroup(groupId);
         if (CollectionUtils.isEmpty(imChannelContextList)) {
-            // ImCluster cluster1 = imConfig.getCluster();
-            // if (cluster1 != null && !packet.isFromCluster()) {
-            // cluster1.clusterToGroup(groupId, packet);
-            // }
-            // return true;
             sendGroupByCluster(groupId, packet);
             return true;
         }
@@ -135,10 +130,6 @@ public class JimServerAPI implements ImConst {
             });
             return true;
         } finally {
-            // ImCluster cluster = imConfig.getCluster();
-            // if (Objects.nonNull(cluster) && !packet.isFromCluster()) {
-            // cluster.clusterToGroup(groupId, packet);
-            // }
             sendGroupByCluster(groupId, packet);
         }
     }

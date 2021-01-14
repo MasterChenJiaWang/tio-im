@@ -39,7 +39,7 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
     /**
      * Redis发布/订阅Topic
      */
-    public RTopic rTopic;
+    public RTopic<ImClusterVO> rTopic;
 
     /**
      * 收到了多少次topic
@@ -57,13 +57,13 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
      * @author: WChao
      */
     public static RedisClusterConfig newInstance(String topicSuffix, RedissonClient redissonClient,
-        MessageListener<ImClusterVO> messageListener) {
+        MessageListener messageListener) {
         if (redissonClient == null) {
             throw new RuntimeException(RedissonClient.class.getSimpleName() + "不允许为空");
         }
         RedisClusterConfig me = new RedisClusterConfig(topicSuffix, redissonClient);
         me.rTopic = redissonClient.getTopic(me.topic);
-        me.rTopic.addListener(ImClusterVO.class, messageListener);
+        me.rTopic.addListener(messageListener);
         return me;
     }
 
@@ -107,11 +107,11 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
         this.redissonClient = redissonClient;
     }
 
-    public RTopic getRTopic() {
+    public RTopic<ImClusterVO> getRTopic() {
         return rTopic;
     }
 
-    public void setRTopic(RTopic rTopic) {
+    public void setRTopic(RTopic<ImClusterVO> rTopic) {
         this.rTopic = rTopic;
     }
 

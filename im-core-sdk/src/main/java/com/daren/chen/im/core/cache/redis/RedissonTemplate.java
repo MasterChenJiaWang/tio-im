@@ -25,7 +25,7 @@ import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RSet;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.StringCodec;
+import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
 import org.slf4j.Logger;
@@ -76,7 +76,8 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
                 }
                 Config redissonConfig = new Config();
                 // 与jedis兼容 使用相同编码
-                redissonConfig.setCodec(new StringCodec());
+                // redissonConfig.setCodec(new StringCodec());
+                redissonConfig.setCodec(new JsonJacksonCodec());
                 ClusterServersConfig clusterServersConfig = redissonConfig.useClusterServers();
                 String[] split = clusterAddr.split(",");
                 if (split.length == 0) {
@@ -100,7 +101,8 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
                 String password = redisConfig.getAuth();
                 Config redissonConfig = new Config();
                 // 与jedis 兼容 使用相同编码
-                redissonConfig.setCodec(new StringCodec());
+                // redissonConfig.setCodec(new StringCodec());
+                redissonConfig.setCodec(new JsonJacksonCodec());
                 redissonConfig.useSingleServer().setAddress(REDIS + "://" + host + ":" + port).setPassword(password)
                     .setDatabase(redisConfig.getDatabase()).setTimeout(redisConfig.getTimeout())
                     .setRetryAttempts(redisConfig.getRetryNum());

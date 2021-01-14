@@ -48,7 +48,7 @@ public class Test3ClientStarter2 {
     private static void init() {
         new Thread(() -> {
             // 服务器节点
-            Node serverNode = new Node("127.0.0.1", 18885);
+            Node serverNode = new Node("127.0.0.1", 18887);
             // 构建客户端配置信息
             ImClientConfig imClientConfig = ImClientConfig.newBuilder()
                 // 客户端业务回调器,不可以为NULL

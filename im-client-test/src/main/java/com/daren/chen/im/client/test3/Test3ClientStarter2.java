@@ -119,7 +119,7 @@ public class Test3ClientStarter2 {
     private static void getOfflineMessage(String userId) {
         MessageReqBody messageReqBody = new MessageReqBody();
         messageReqBody.setUserId(userId);
-        messageReqBody.setEndTime((double) System.currentTimeMillis());
+        messageReqBody.setEndTime((double)System.currentTimeMillis());
         messageReqBody.setType(0);
         TcpPacket chatPacket = new TcpPacket(Command.COMMAND_GET_MESSAGE_REQ, messageReqBody.toByte());
         //

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tio.core.TioConfig;
 import org.tio.core.ssl.SslConfig;
 import org.tio.utils.prop.MapWithLockPropSupport;
@@ -439,7 +440,8 @@ public abstract class ImConfig extends MapWithLockPropSupport implements ImConst
     }
 
     private static boolean filterLog(String x) {
-        if (x.contains("---------------------------------------------------------------------------------------")) {
+        if (StringUtils.isNotBlank(x)
+            && x.contains("---------------------------------------------------------------------------------------")) {
             return true;
         }
         return false;

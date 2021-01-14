@@ -196,7 +196,7 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
 
             @Override
             Long execute() {
-                Set<String> keys = keys(likeKey);
+                Set<String> keys = jedis.keys(likeKey + "*");
                 return jedis.del(keys.toArray(new String[0]));
             }
         }.getResult();
@@ -971,7 +971,6 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
     @Override
     public Long listPushHeadAndTrim(final String key, final String value, final long size) {
         return new Executor<Long>(jedisPool) {
-
             @Override
             Long execute() {
                 Pipeline pipeline = jedis.pipelined();
@@ -1001,17 +1000,22 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
             @Override
             Object execute() {
                 if (delOld) {
-                    RedisLock lock = new RedisLock(key, jedisPool);
-                    lock.lock();
+                    RedisLock lock = null;
                     try {
+                        lock = new RedisLock(key, jedis);
+                        lock.lock();
                         Pipeline pipeline = jedis.pipelined();
                         pipeline.del(key);
                         for (String value : values) {
                             pipeline.rpush(key, value);
                         }
                         pipeline.sync();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     } finally {
-                        lock.unlock();
+                        if (lock != null) {
+                            lock.unlock();
+                        }
                     }
                 } else {
                     Pipeline pipeline = jedis.pipelined();
@@ -1066,7 +1070,7 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
 
             @Override
             Long execute() {
-                RedisLock lock = new RedisLock(key, jedisPool);
+                RedisLock lock = new RedisLock(key, jedis);
                 lock.lock();
                 try {
                     if (!jedis.exists(key)) {
@@ -1291,7 +1295,6 @@ public class JedisTemplate implements BaseJedisTemplate, Serializable {
     @Override
     public void subscribe(final JedisPubSub jedisPubSub, final String channel) {
         new Executor<Object>(jedisPool) {
-
             @Override
             Object execute() {
                 jedis.subscribe(jedisPubSub, channel);

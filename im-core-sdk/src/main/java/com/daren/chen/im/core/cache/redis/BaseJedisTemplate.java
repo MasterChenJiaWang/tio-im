@@ -512,7 +512,7 @@ public interface BaseJedisTemplate {
      * @return
      */
     Set<String> sorSetRangeByScore(final String key, final double min, final double max, final int offset,
-                                   final int count);
+        final int count);
 
     /* ======================================Pub/Sub====================================== */
 

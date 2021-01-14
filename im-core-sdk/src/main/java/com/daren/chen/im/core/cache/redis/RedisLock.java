@@ -3,7 +3,6 @@ package com.daren.chen.im.core.cache.redis;
 import java.util.Random;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 @SuppressWarnings({"deprecation"})
 public class RedisLock {
@@ -13,29 +12,34 @@ public class RedisLock {
     /** 毫秒与毫微秒的换算单位 1毫秒 = 1000000毫微秒 */
     public static final long MILLI_NANO_CONVERSION = 1000 * 1000L;
     /** 默认超时时间（毫秒） */
-    public static final long DEFAULT_TIME_OUT = 1000;
+    public static final long DEFAULT_TIME_OUT = 20000;
     public static final Random RANDOM = new Random();
     /** 锁的超时时间（秒），过期删除 */
     public static final int EXPIRE = 3 * 60;
 
-    private JedisPool jedisPool;
+    // private JedisPool jedisPool;
     private Jedis jedis;
     private String key;
     // 锁状态标志
     private boolean locked = false;
+    //
+    // /**
+    // * This creates a RedisLock
+    // *
+    // * @param key
+    // * key
+    // * @param shardedJedisPool
+    // * 数据源
+    // */
+    // public RedisLock(String key, JedisPool shardedJedisPool) {
+    // this.key = key + "_lock";
+    // this.jedisPool = shardedJedisPool;
+    // this.jedis = this.jedisPool.getResource();
+    // }
 
-    /**
-     * This creates a RedisLock
-     *
-     * @param key
-     *            key
-     * @param shardedJedisPool
-     *            数据源
-     */
-    public RedisLock(String key, JedisPool shardedJedisPool) {
+    public RedisLock(String key, Jedis jedis) {
         this.key = key + "_lock";
-        this.jedisPool = shardedJedisPool;
-        this.jedis = this.jedisPool.getResource();
+        this.jedis = jedis;
     }
 
     /**
@@ -110,7 +114,7 @@ public class RedisLock {
                 this.jedis.del(this.key);
             }
         } finally {
-            this.jedisPool.close();
+            this.jedis.close();
         }
     }
 }

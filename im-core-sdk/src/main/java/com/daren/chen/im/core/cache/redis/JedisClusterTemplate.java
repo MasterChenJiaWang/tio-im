@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -937,32 +938,34 @@ public class JedisClusterTemplate implements BaseJedisTemplate, Serializable {
      */
     @Override
     public void batchListPushTail(String key, String[] values, boolean delOld) {
-        // return new Executor<Long>() {
-        // @Override
-        // Long execute() {
-        // if (delOld) {
-        // RedisLock lock = new RedisLock(key, jedisPool);
-        // lock.lock();
-        // try {
-        // Pipeline pipeline = jedis.pipelined();
-        // pipeline.del(key);
-        // for (String value : values) {
-        // pipeline.rpush(key, value);
-        // }
-        // pipeline.sync();
-        // } finally {
-        // lock.unlock();
-        // }
-        // } else {
-        // Pipeline pipeline = jedis.pipelined();
-        // for (String value : values) {
-        // pipeline.rpush(key, value);
-        // }
-        // pipeline.sync();
-        // }
-        // return null;
-        // }
-        // }.getResult();
+        new Executor<Object>() {
+            @Override
+            Object execute() {
+                if (delOld) {
+                    RedisClusterLock redisClusterLock = new RedisClusterLock(jedisCluster);
+                    String s = UUID.randomUUID().toString();
+                    try {
+                        Boolean aBoolean = redisClusterLock.setLockOfCluster(key + "_lock", s, 10000);
+                        if (!aBoolean) {
+                            return false;
+                        }
+                        jedisCluster.del(key);
+                        for (String value : values) {
+                            jedisCluster.rpush(key, value);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        redisClusterLock.unLockOfCluster(key + "_lock", s);
+                    }
+                } else {
+                    for (String value : values) {
+                        jedisCluster.rpush(key, value);
+                    }
+                }
+                return null;
+            }
+        }.getResult();
     }
 
     /**
@@ -983,7 +986,28 @@ public class JedisClusterTemplate implements BaseJedisTemplate, Serializable {
 
     @Override
     public Long insertListIfNotExists(String key, String[] values) {
-        return null;
+
+        return new Executor<Long>() {
+            @Override
+            Long execute() {
+                RedisClusterLock redisClusterLock = new RedisClusterLock(jedisCluster);
+                String s = UUID.randomUUID().toString();
+                try {
+                    Boolean aBoolean = redisClusterLock.setLockOfCluster(key + "_lock", s, 10000);
+                    if (!aBoolean) {
+                        return 0L;
+                    }
+                    if (!jedisCluster.exists(key)) {
+                        return jedisCluster.rpush(key, values);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    redisClusterLock.unLockOfCluster(key + "_lock", s);
+                }
+                return 0L;
+            }
+        }.getResult();
     }
 
     /**
@@ -1018,7 +1042,6 @@ public class JedisClusterTemplate implements BaseJedisTemplate, Serializable {
     @Override
     public List<String> listRange(final String key, final long beginIndex, final long endIndex) {
         return new Executor<List<String>>() {
-
             @Override
             List<String> execute() {
                 return jedisCluster.lrange(key, beginIndex, endIndex - 1);
@@ -1038,7 +1061,6 @@ public class JedisClusterTemplate implements BaseJedisTemplate, Serializable {
         return new Executor<Map<String, List<String>>>() {
             @Override
             Map<String, List<String>> execute() {
-
                 Map<String, List<String>> result = new HashMap<>();
                 for (String key : keys) {
                     List<String> lrange = jedisCluster.lrange(key, 0, -1);

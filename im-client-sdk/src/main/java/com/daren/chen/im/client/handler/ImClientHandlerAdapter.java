@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.intf.Packet;
 
 import com.daren.chen.im.client.ImClientChannelContext;
@@ -31,13 +31,13 @@ public class ImClientHandlerAdapter implements ClientAioHandler, ImConst {
 
     @Override
     public Packet decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext)
-        throws AioDecodeException {
+        throws TioDecodeException {
         ImPacket imPacket;
         try {
             imPacket = this.imClientHandler.decode(buffer, limit, position, readableLength,
                 (ImClientChannelContext)channelContext.get(Key.IM_CHANNEL_CONTEXT_KEY));
         } catch (ImDecodeException e) {
-            throw new AioDecodeException(e);
+            throw new TioDecodeException(e);
         }
         return imPacket;
     }

@@ -54,7 +54,7 @@
         <hutool.version>5.5.1</hutool.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <jedis.version>3.4.0</jedis.version>
-        <redisson.version>3.7.0</redisson.version>
+        <redisson.version>3.14.1</redisson.version>
         <j2cache.version>2.3.21-release</j2cache.version>
         <guava.version>23.0</guava.version>
         <jgroups.version>2.6.5.GA</jgroups.version>

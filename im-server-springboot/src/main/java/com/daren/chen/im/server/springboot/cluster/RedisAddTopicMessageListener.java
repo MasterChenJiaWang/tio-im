@@ -37,7 +37,7 @@ public class RedisAddTopicMessageListener implements MessageListener<ImClusterVO
      * @param imClusterVo
      */
     @Override
-    public void onMessage(String channel, ImClusterVO imClusterVo) {
+    public void onMessage(CharSequence channel, ImClusterVO imClusterVo) {
         String clientId = imClusterVo.getClientId();
         if (StringUtils.isBlank(clientId)) {
             log.error("clientId is null");

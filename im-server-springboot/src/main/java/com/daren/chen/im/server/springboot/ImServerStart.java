@@ -72,7 +72,7 @@ import cn.hutool.core.collection.CollectionUtil;
  * @date 2018-04-05 23:50:25
  */
 @Component
-public class ImServerCupStart {
+public class ImServerStart {
 
     @Autowired
     private JimConfig jimConfig;
@@ -80,7 +80,7 @@ public class ImServerCupStart {
     /**
      *
      */
-    private static final Logger logger = LoggerFactory.getLogger(ImServerCupStart.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImServerStart.class);
 
     @PostConstruct
     public void start() {

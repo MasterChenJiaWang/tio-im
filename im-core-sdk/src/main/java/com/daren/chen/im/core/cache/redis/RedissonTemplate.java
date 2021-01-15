@@ -22,10 +22,9 @@ import org.redisson.api.RList;
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
 import org.redisson.api.RScoredSortedSet;
-import org.redisson.api.RSet;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.JsonJacksonCodec;
+import org.redisson.client.codec.StringCodec;
 import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
 import org.slf4j.Logger;
@@ -76,8 +75,8 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
                 }
                 Config redissonConfig = new Config();
                 // 与jedis兼容 使用相同编码
-                // redissonConfig.setCodec(new StringCodec());
-                redissonConfig.setCodec(new JsonJacksonCodec());
+                redissonConfig.setCodec(new StringCodec());
+                // redissonConfig.setCodec(new JsonJacksonCodec());
                 ClusterServersConfig clusterServersConfig = redissonConfig.useClusterServers();
                 String[] split = clusterAddr.split(",");
                 if (split.length == 0) {
@@ -101,8 +100,8 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
                 String password = redisConfig.getAuth();
                 Config redissonConfig = new Config();
                 // 与jedis 兼容 使用相同编码
-                // redissonConfig.setCodec(new StringCodec());
-                redissonConfig.setCodec(new JsonJacksonCodec());
+                redissonConfig.setCodec(new StringCodec());
+                // redissonConfig.setCodec(new JsonJacksonCodec());
                 redissonConfig.useSingleServer().setAddress(REDIS + "://" + host + ":" + port).setPassword(password)
                     .setDatabase(redisConfig.getDatabase()).setTimeout(redisConfig.getTimeout())
                     .setRetryAttempts(redisConfig.getRetryNum());
@@ -465,27 +464,27 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
         if (values == null || values.length == 0) {
             return 0L;
         }
-        RList<Object> list = redissonClient.getList(key);
+        RList<String> list = redissonClient.getList(key);
         Collections.addAll(list, values);
         return (long)list.size();
     }
 
     @Override
     public Long listPushHead(String key, String value) {
-        RList<Object> list = redissonClient.getList(key);
+        RList<String> list = redissonClient.getList(key);
         list.add(0, value);
         return (long)list.size();
     }
 
     @Override
     public Long listRemove(String key, int count, String value) {
-        RList<Object> list = redissonClient.getList(key);
+        RList<String> list = redissonClient.getList(key);
         if (0 == count) {
             list.remove(value);
             return 1L;
         } else if (count > 0) {
             long i = 0;
-            for (Object o : list) {
+            for (String o : list) {
                 if (value.equals(o)) {
                     list.remove(o);
                     i++;
@@ -517,7 +516,7 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
      */
     @Override
     public Long listPushHeadAndTrim(String key, String value, long size) {
-        RList<Object> list = redissonClient.getList(key);
+        RList<String> list = redissonClient.getList(key);
         list.add(0, value);
         int size1 = list.size();
         if (size1 > size) {
@@ -536,7 +535,7 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
                 if (values == null || values.length == 0) {
                     return;
                 }
-                RList<Object> list = redissonClient.getList(key);
+                RList<String> list = redissonClient.getList(key);
                 list.delete();
                 Collections.addAll(list, values);
             } catch (InterruptedException e) {
@@ -548,7 +547,7 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
             if (values == null || values.length == 0) {
                 return;
             }
-            RList<Object> list = redissonClient.getList(key);
+            RList<String> list = redissonClient.getList(key);
             Collections.addAll(list, values);
         }
     }
@@ -565,7 +564,7 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
         // } catch (TransactionException e) {
         // transaction.rollback();
         // }
-        RList<Object> list = redissonClient.getList(key);
+        RList<String> list = redissonClient.getList(key);
         list.addAll(values);
         return null;
     }
@@ -696,26 +695,31 @@ public class RedissonTemplate implements BaseJedisTemplate, Serializable {
 
     @Override
     public Object set(String key, Object value) {
-        RSet<Object> set = redissonClient.getSet(key);
-        set.addAsync(value);
-        return value;
+        RBucket<String> bucket = redissonClient.getBucket(key);
+        bucket.set(JSON.toJSONString(value));
+        return "OK";
     }
 
     @Override
     public Object set(String key, Object value, int expire) {
-        RSet<Object> set = redissonClient.getSet(key);
-        set.addAsync(value);
-        set.expire(expire, TimeUnit.SECONDS);
-        return set;
+        RBucket<String> bucket = redissonClient.getBucket(key);
+        bucket.set(JSON.toJSONString(value), expire, TimeUnit.SECONDS);
+        return "OK";
     }
 
     @Override
     public <T> T get(String key, Class<T> clazz) {
-        RBucket<String> bucket = redissonClient.getBucket(key);
-        String json = bucket.get();
-        if (StringUtils.isBlank(json)) {
+        try {
+            RBucket<String> bucket = redissonClient.getBucket(key);
+            String json = bucket.get();
+            if (StringUtils.isBlank(json)) {
+                return null;
+            }
+            return JSON.parseObject(json, clazz);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.info("key = {}", key);
             return null;
         }
-        return JSON.parseObject(json, clazz);
     }
 }

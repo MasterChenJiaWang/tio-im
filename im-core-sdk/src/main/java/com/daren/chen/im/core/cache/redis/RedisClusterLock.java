@@ -41,15 +41,14 @@ public class RedisClusterLock {
     /** 锁的超时时间（秒），过期删除 */
     public static final int EXPIRE = 3 * 60;
     private static final Long RELEASE_SUCCESS = 1L;
+    /**
+     *
+     */
     private Jedis jedis;
     /**
      *
      */
-    private JedisCluster jedisCluster;
-
-    public RedisClusterLock(Jedis jedis) {
-        this.jedis = jedis;
-    }
+    private final JedisCluster jedisCluster;
 
     public RedisClusterLock(JedisCluster jedisCluster) {
         this.jedisCluster = jedisCluster;
@@ -103,10 +102,11 @@ public class RedisClusterLock {
      * @param lockKey
      * @param value
      * @param expire
+     *            秒
      * @return
      */
     public Boolean setLockOfCluster(String lockKey, String value, int expire) {
-        return setLockOfCluster(lockKey, value, 2000, expire);
+        return setLockOfCluster(lockKey, value, 10000, expire);
     }
 
     /**
@@ -119,7 +119,7 @@ public class RedisClusterLock {
      * @param timeout
      *            等待时间 毫秒
      * @param expire
-     *            锁过期时间
+     *            锁过期时间 秒
      * @return
      */
     public Boolean setLockOfCluster(String lockKey, String value, long timeout, int expire) {
@@ -129,12 +129,12 @@ public class RedisClusterLock {
             while ((System.nanoTime() - nano) < timeout) {
                 if (this.jedisCluster.setnx(lockKey, value) == 1) {
                     this.jedisCluster.expire(lockKey, expire);
-                    return Boolean.TRUE;
+                    return true;
                 }
                 // 短暂休眠，避免出现活锁
-                Thread.sleep(3, RANDOM.nextInt(500));
-                return false;
+                Thread.sleep(20, RANDOM.nextInt(500));
             }
+            logger.info("线程 [{}] ,总共耗时 {}", Thread.currentThread().getName(), (System.nanoTime() - nano) / 1000000000);
             return false;
         } catch (Exception e) {
             throw new RuntimeException("Locking error", e);
@@ -158,6 +158,10 @@ public class RedisClusterLock {
 
         } catch (Exception e) {
             logger.error("释放Redis锁异常：", e);
+        } finally {
+            if (this.jedis != null) {
+                this.jedis.close();
+            }
         }
 
         return false;

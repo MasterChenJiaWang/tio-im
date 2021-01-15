@@ -3,6 +3,7 @@
  */
 package com.daren.chen.im.server.cluster.redis;
 
+import com.alibaba.fastjson.JSON;
 import com.daren.chen.im.core.ImPacket;
 import com.daren.chen.im.core.cluster.ImCluster;
 import com.daren.chen.im.core.cluster.ImClusterVO;
@@ -29,7 +30,7 @@ public class RedisCluster extends ImCluster {
         if (clusterConfig.isCluster2user()) {
             ImClusterVO imClusterVo = new ImClusterVO(packet);
             imClusterVo.setUserId(userId);
-            clusterConfig.sendAsync(imClusterVo);
+            clusterConfig.sendAsync(JSON.toJSONString(imClusterVo));
         }
     }
 
@@ -38,7 +39,7 @@ public class RedisCluster extends ImCluster {
         if (clusterConfig.isCluster2group()) {
             ImClusterVO imClusterVo = new ImClusterVO(packet);
             imClusterVo.setGroup(group);
-            clusterConfig.sendAsync(imClusterVo);
+            clusterConfig.sendAsync(JSON.toJSONString(imClusterVo));
         }
     }
 
@@ -47,7 +48,7 @@ public class RedisCluster extends ImCluster {
         if (clusterConfig.isCluster2ip()) {
             ImClusterVO imClusterVo = new ImClusterVO(packet);
             imClusterVo.setIp(ip);
-            clusterConfig.sendAsync(imClusterVo);
+            clusterConfig.sendAsync(JSON.toJSONString(imClusterVo));
         }
     }
 
@@ -56,7 +57,7 @@ public class RedisCluster extends ImCluster {
         if (clusterConfig.isCluster2channelId()) {
             ImClusterVO imClusterVo = new ImClusterVO(packet);
             imClusterVo.setChannelId(channelId);
-            clusterConfig.sendAsync(imClusterVo);
+            clusterConfig.sendAsync(JSON.toJSONString(imClusterVo));
         }
     }
 

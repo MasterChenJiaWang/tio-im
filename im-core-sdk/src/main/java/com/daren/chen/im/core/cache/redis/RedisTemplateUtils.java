@@ -26,10 +26,11 @@ public class RedisTemplateUtils {
             throw new Exception("RedisTemplateUtils 未初始化!");
         }
         try {
-            if (cluster) {
-                return JedisClusterTemplate.me();
-            }
-            return JedisTemplate.me();
+            // if (cluster) {
+            // return JedisClusterTemplate.me();
+            // }
+            // return JedisTemplate.me();
+            return RedissonTemplate.me();
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("JedisTemplate 初始化失败!");
@@ -43,10 +44,11 @@ public class RedisTemplateUtils {
      */
     public static BaseJedisTemplate getRedisTemplate(boolean cluster) throws Exception {
         try {
-            if (cluster) {
-                return JedisClusterTemplate.me();
-            }
-            return JedisTemplate.me();
+            // if (cluster) {
+            // return JedisClusterTemplate.me();
+            // }
+            // return JedisTemplate.me();
+            return RedissonTemplate.me();
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("JedisTemplate 初始化失败!");

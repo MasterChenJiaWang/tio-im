@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.daren.chen.im.core.cache.redis.JedisClusterTemplate;
 import com.daren.chen.im.core.cache.redis.Pair;
 import com.daren.chen.im.core.cache.redis.RedissonTemplate;
+import com.daren.chen.im.core.packets.Group;
 
 /**
  * @Description:
@@ -462,6 +463,20 @@ public class RedisCulsTest {
         System.out.println(test1);
         Long test2 = RedissonTemplate.me().publish("dev_1111_JIM_CLUSTER", "test2");
         System.out.println(test2);
+
+    }
+
+    @Test
+    public void get() throws Exception {
+        Group group = JedisClusterTemplate.me().get("group:100:info", Group.class);
+        System.out.println(group.getGroupId());
+        Group group2 = RedissonTemplate.me().get("group:100:info", Group.class);
+        System.out.println(group2.getGroupId());
+
+        String user = JedisClusterTemplate.me().get("user:13888800001:terminal:tcp", String.class);
+        System.out.println(user);
+        String user2 = RedissonTemplate.me().get("user:13888800001:terminal:tcp", String.class);
+        System.out.println(user2);
 
     }
 }

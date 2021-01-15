@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.daren.chen.im.core.ImConst;
 import com.daren.chen.im.core.cluster.ImClusterConfig;
-import com.daren.chen.im.core.cluster.ImClusterVO;
 
 /**
  * @desc Redis集群配置
@@ -63,7 +62,8 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
         }
         RedisClusterConfig me = new RedisClusterConfig(topicSuffix, redissonClient);
         me.rTopic = redissonClient.getTopic(me.topic);
-        me.rTopic.addListener(ImClusterVO.class, messageListener);
+        // 改成使用String 是因为 redisson 的 编码方式改成了 StringCodec,对应的 messageListener 中的接收也用 string
+        me.rTopic.addListener(String.class, messageListener);
         return me;
     }
 
@@ -73,13 +73,13 @@ public class RedisClusterConfig extends ImClusterConfig implements ImConst {
     }
 
     @Override
-    public void send(ImClusterVO imClusterVo) {
-        rTopic.publish(imClusterVo);
+    public void send(String message) {
+        rTopic.publish(message);
     }
 
     @Override
-    public void sendAsync(ImClusterVO imClusterVo) {
-        rTopic.publishAsync(imClusterVo);
+    public void sendAsync(String message) {
+        rTopic.publishAsync(message);
     }
 
     public String getTopicSuffix() {

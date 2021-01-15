@@ -1,5 +1,6 @@
 package com.daren.chen.im.core.cluster;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import com.daren.chen.im.core.ImPacket;
@@ -10,13 +11,14 @@ import com.daren.chen.im.core.ImPacket;
  *
  * @author WChao 2018年05月20日 下午3:10:29
  */
-public class ImClusterVO implements java.io.Serializable {
+public class ImClusterVO implements Serializable {
 
     private static final long serialVersionUID = 6978027913776155664L;
     /**
      * 集群各个机器唯一标识常量(用于判断是否属于自己机器发送的消息)
      */
     public static final String CLIENT_ID = UUID.randomUUID().toString();
+
     /**
      * 消息包
      */
@@ -124,5 +126,4 @@ public class ImClusterVO implements java.io.Serializable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
 }

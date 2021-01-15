@@ -52,9 +52,9 @@ public class UserDataInit implements ApplicationRunner {
         // 等待初始化完成
         Thread.sleep(3000);
         //
-        // List<User> users = read();
-        // //
-        // save(users);
+        List<User> users = read();
+        //
+        save(users);
     }
 
     private void save(List<User> users) {
@@ -143,7 +143,13 @@ public class UserDataInit implements ApplicationRunner {
                     if (StringUtils.isBlank(string)) {
                         continue;
                     }
-                    User user = JSONUtil.toBean(string, User.class);
+                    User user = null;
+                    try {
+                        user = JSONUtil.toBean(string, User.class);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        logger.info("报错: {}", string);
+                    }
                     if (null == user) {
                         continue;
                     }

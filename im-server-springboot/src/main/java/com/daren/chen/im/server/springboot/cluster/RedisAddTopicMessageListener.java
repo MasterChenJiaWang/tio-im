@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.listener.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.utils.json.Json;
 
+import com.alibaba.fastjson.JSON;
 import com.daren.chen.im.core.ImPacket;
 import com.daren.chen.im.core.cache.redis.RedissonTemplate;
 import com.daren.chen.im.core.cluster.ImCluster;
@@ -27,22 +27,23 @@ import cn.hutool.core.collection.CollectionUtil;
  * @author: chendaren
  * @CreateDate: 2020/12/1 17:07
  */
-public class RedisAddTopicMessageListener implements MessageListener<ImClusterVO> {
+public class RedisAddTopicMessageListener implements MessageListener<String> {
 
     private static final Logger log = LoggerFactory.getLogger(RedisAddTopicMessageListener.class);
 
     /**
      *
      * @param channel
-     * @param imClusterVo
+     * @param message
      */
     @Override
-    public void onMessage(CharSequence channel, ImClusterVO imClusterVo) {
-        // if (StringUtils.isBlank(data)) {
-        // log.error("data is null");
-        // return;
-        // }
-        // ImClusterVO imClusterVo = JSONUtil.toBean(data, ImClusterVO.class);
+    public void onMessage(CharSequence channel, String message) {
+        if (StringUtils.isBlank(message)) {
+            log.error("data is null");
+            return;
+        }
+        log.info("收到添加topic:{},  ImClusterVo:{}", channel, message);
+        ImClusterVO imClusterVo = JSON.parseObject(message, ImClusterVO.class);
         String clientId = imClusterVo.getClientId();
         if (StringUtils.isBlank(clientId)) {
             log.error("clientId is null");
@@ -51,7 +52,7 @@ public class RedisAddTopicMessageListener implements MessageListener<ImClusterVO
         if (Objects.equals(ImClusterVO.CLIENT_ID, clientId)) {
             return;
         }
-        log.info("收到添加topic:{},  ImClusterVo:{}", channel, Json.toJson(imClusterVo));
+
         ImPacket packet = imClusterVo.getPacket();
         if (packet == null) {
             log.error("packet is null");

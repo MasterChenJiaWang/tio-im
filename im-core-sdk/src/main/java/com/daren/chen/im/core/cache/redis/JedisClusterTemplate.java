@@ -40,6 +40,10 @@ public class JedisClusterTemplate implements BaseJedisTemplate, Serializable {
 
     private JedisClusterTemplate() {}
 
+    public JedisCluster getJedisCluster() {
+        return jedisCluster;
+    }
+
     public static JedisClusterTemplate me() throws Exception {
         if (instance == null) {
             synchronized (JedisClusterTemplate.class) {
@@ -945,7 +949,7 @@ public class JedisClusterTemplate implements BaseJedisTemplate, Serializable {
                     RedisClusterLock redisClusterLock = new RedisClusterLock(jedisCluster);
                     String s = UUID.randomUUID().toString();
                     try {
-                        Boolean aBoolean = redisClusterLock.setLockOfCluster(key + "_lock", s, 10000);
+                        Boolean aBoolean = redisClusterLock.setLockOfCluster(key + "_lock", s, 10);
                         if (!aBoolean) {
                             return false;
                         }
@@ -993,7 +997,7 @@ public class JedisClusterTemplate implements BaseJedisTemplate, Serializable {
                 RedisClusterLock redisClusterLock = new RedisClusterLock(jedisCluster);
                 String s = UUID.randomUUID().toString();
                 try {
-                    Boolean aBoolean = redisClusterLock.setLockOfCluster(key + "_lock", s, 10000);
+                    Boolean aBoolean = redisClusterLock.setLockOfCluster(key + "_lock", s, 10);
                     if (!aBoolean) {
                         return 0L;
                     }

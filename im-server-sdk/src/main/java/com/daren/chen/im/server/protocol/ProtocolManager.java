@@ -32,9 +32,9 @@ import com.daren.chen.im.server.config.ImServerConfig;
  */
 public class ProtocolManager implements ImConst {
 
-    private static Logger logger = LoggerFactory.getLogger(ProtocolManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtocolManager.class);
 
-    private static Map<String, AbstractProtocolHandler> serverHandlers = new HashMap<String, AbstractProtocolHandler>();
+    private static Map<String, AbstractProtocolHandler> serverHandlers = new HashMap<>();
 
     static {
         try {

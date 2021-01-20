@@ -23,7 +23,7 @@ import io.github.lukehutch.fastclasspathscanner.matchprocessor.MethodAnnotationM
  * @author WChao 2017年7月1日 上午9:05:30
  */
 public class Routes {
-    private static Logger log = LoggerFactory.getLogger(Routes.class);
+    private static final Logger log = LoggerFactory.getLogger(Routes.class);
     // private HttpServerConfig httpServerConfig = null;
 
     // private String[] scanPackages = null;

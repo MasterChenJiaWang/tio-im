@@ -37,18 +37,6 @@ public class JimServer {
         if (imServerConfig.getMessageHelper() == null) {
             imServerConfig.setMessageHelper(new RedisMessageHelper());
         }
-        // if (ImServerConfig.ON.equals(imServerConfig.getIsCluster())) {
-        // imServerConfig.setIsStore(ImServerConfig.ON);
-        // if (imServerConfig.getCluster() == null) {
-        // try {
-        // imServerConfig.setCluster(
-        // new RedisCluster(RedisClusterConfig.newInstance(ImConst.Topic.REDIS_CLUSTER_TOPIC_SUFFIX,
-        // RedissonTemplate.me().getRedissonClient(), imServerConfig.getMessageListener())));
-        // } catch (Exception e) {
-        // log.error("Connection cluster configuration is abnormal, please check", e);
-        // }
-        // }
-        // }
         ProtocolManager.init();
         tioServer = new TioServer((ServerTioConfig)imServerConfig.getTioConfig());
     }

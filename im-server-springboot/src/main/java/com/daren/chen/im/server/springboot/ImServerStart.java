@@ -101,135 +101,13 @@ public class ImServerStart {
             RedisTemplateUtils.setCluster(jimConfig.getRedis().isCluster());
             // 初始化
             LocalCacheUtils.me();
-            //
+            // server 集群
             serverCluster(imServerConfig);
             //
             JimServer jimServer = new JimServer(imServerConfig);
 
             /***************** start 以下处理器根据业务需要自行添加与扩展，每个Command都可以添加扩展,此处为demo中处理 **********************************/
-
-            HandshakeReqHandler handshakeReqHandler =
-                CommandManager.getCommand(Command.COMMAND_HANDSHAKE_REQ, HandshakeReqHandler.class);
-            if (handshakeReqHandler == null) {
-                throw new RuntimeException("心跳指令对象为空!");
-            }
-            // 登录请求指令;
-            handshakeReqHandler.addMultiProtocolProcessor(new MyWsHandshakeProcessor());
-            LoginReqHandler loginReqHandler =
-                CommandManager.getCommand(Command.COMMAND_LOGIN_REQ, LoginReqHandler.class);
-            if (loginReqHandler == null) {
-                throw new RuntimeException("登录对象为空!");
-            }
-            // 登录业务处理器
-            loginReqHandler.setSingleProcessor(new LoginServiceProcessor());
-
-            // 鉴权请求指令;
-            AuthReqHandler authReqHandler = CommandManager.getCommand(Command.COMMAND_AUTH_REQ, AuthReqHandler.class);
-            if (authReqHandler == null) {
-                throw new RuntimeException("鉴权信息对象为空!");
-            }
-            // 鉴权业务处理器;
-            authReqHandler.setSingleProcessor(new AuthServiceProcessor());
-
-            // 聊天请求指令
-            ChatReqHandler chatReqHandler = CommandManager.getCommand(Command.COMMAND_CHAT_REQ, ChatReqHandler.class);
-            if (chatReqHandler == null) {
-                throw new RuntimeException("聊天对象为空!");
-            }
-            // 聊天业务处理器;
-            chatReqHandler.setSingleProcessor(new AsyncChatMessageServiceProcessor());
-
-            // 添加好友请求指令
-            AddFriendReqHandler addFriendReqHandler =
-                CommandManager.getCommand(Command.COMMAND_ADD_FRIEND_REQ, AddFriendReqHandler.class);
-            if (addFriendReqHandler == null) {
-                throw new RuntimeException("新增好友对象为空!");
-            }
-            // 添加好友业务处理器
-            addFriendReqHandler.setSingleProcessor(new FriendServiceProcessor());
-
-            // 删除好友请求指令
-            DeleteFriendReqHandler deleteFriendReqHandler =
-                CommandManager.getCommand(Command.COMMAND_DELETE_FRIEND_REQ, DeleteFriendReqHandler.class);
-            if (deleteFriendReqHandler == null) {
-                throw new RuntimeException("删除好友对象为空!");
-            }
-            // 删除好友业务处理器
-            deleteFriendReqHandler.setSingleProcessor(new FriendServiceProcessor());
-
-            // 加入群组请求指令
-            JoinGroupReqHandler joinGroupReqHandler =
-                CommandManager.getCommand(Command.COMMAND_JOIN_GROUP_REQ, JoinGroupReqHandler.class);
-            if (joinGroupReqHandler == null) {
-                throw new RuntimeException("加入群组对象为空!");
-            }
-            // 加入群组业务处理器
-            joinGroupReqHandler.setSingleProcessor(new GroupServiceProcessor());
-
-            // 退出群组请求指令
-            ExitGroupReqHandler exitGroupReqHandler =
-                CommandManager.getCommand(Command.COMMAND_EXIT_GROUP_REQ, ExitGroupReqHandler.class);
-            if (exitGroupReqHandler == null) {
-                throw new RuntimeException("退出群组对象为空!");
-            }
-            // 退出群组业务处理器
-            exitGroupReqHandler.setSingleProcessor(new GroupServiceProcessor());
-
-            // 获取用户在线状态指令
-            GetUserOnlineStatusReqHandler getUserOnlineStatusReqHandler =
-                CommandManager.getCommand(Command.GET_USER_ONLINE_STATUS_REQ, GetUserOnlineStatusReqHandler.class);
-            if (getUserOnlineStatusReqHandler == null) {
-                throw new RuntimeException("获取用户在线状态对象为空!");
-            }
-            // 获取用户在线状态业务处理器
-            getUserOnlineStatusReqHandler.setSingleProcessor(new UserServiceProcessor());
-
-            // 获取消息通知
-            MsgNoticeReqHandler msgNoticeReqHandler =
-                CommandManager.getCommand(Command.MSG_NOTICE_REQ, MsgNoticeReqHandler.class);
-            if (msgNoticeReqHandler == null) {
-                throw new RuntimeException("获取消息通知对象为空!");
-            }
-            // 获取消息通知业务处理器
-            msgNoticeReqHandler.setSingleProcessor(new NoticeServiceProcessor());
-
-            // 获取用户下线通知指令
-            NoticeOfflineReqHandler noticeOfflineReqHandler =
-                CommandManager.getCommand(Command.NOTICE_OFFLINE_REQ, NoticeOfflineReqHandler.class);
-            if (noticeOfflineReqHandler == null) {
-                throw new RuntimeException("获取下线消息通知对象为空!");
-            }
-            // 获取用户下线通知业务处理器
-            noticeOfflineReqHandler.setSingleProcessor(new NoticeOfflineServiceProcessor());
-
-            // 获取用户申请通知
-            ReceiveMsgNoticeReqHandler receiveMsgNoticeReqHandler =
-                CommandManager.getCommand(Command.RECEIVE_MSG_NOTICE_REQ, ReceiveMsgNoticeReqHandler.class);
-            if (receiveMsgNoticeReqHandler == null) {
-                throw new RuntimeException("获取申请消息通知对象为空!");
-            }
-            // 获取用户申请消息通知业务处理器
-            receiveMsgNoticeReqHandler.setSingleProcessor(new ReceiveNoticeServiceProcessor());
-
-            //
-            // 消息ack通知
-            ChatAckReqHandler chatAckReqHandler =
-                CommandManager.getCommand(Command.CHAT_ACK_REQ, ChatAckReqHandler.class);
-            if (chatAckReqHandler == null) {
-                throw new RuntimeException("消息ack对象为空!");
-            }
-            // 获取用户申请消息通知业务处理器
-            chatAckReqHandler.setSingleProcessor(new AsyncChatMessageServiceProcessor());
-            //
-            // 通知ack通知
-            NoticeAckReqHandler noticeAckReqHandler =
-                CommandManager.getCommand(Command.NOTICE_ACK_REQ, NoticeAckReqHandler.class);
-            if (noticeAckReqHandler == null) {
-                throw new RuntimeException("通知ack对象为空!");
-            }
-            // 获取用户申请消息通知业务处理器
-            noticeAckReqHandler.setSingleProcessor(new AsyncChatMessageServiceProcessor());
-
+            commandHandler();
             /*****************
              * end
              *******************************************************************************************/
@@ -279,6 +157,128 @@ public class ImServerStart {
                 imServerConfig.setClusters(imClusters);
             }
         }
+    }
+
+    private void commandHandler() {
+        HandshakeReqHandler handshakeReqHandler =
+            CommandManager.getCommand(Command.COMMAND_HANDSHAKE_REQ, HandshakeReqHandler.class);
+        if (handshakeReqHandler == null) {
+            throw new RuntimeException("心跳指令对象为空!");
+        }
+        // 登录请求指令;
+        handshakeReqHandler.addMultiProtocolProcessor(new MyWsHandshakeProcessor());
+        LoginReqHandler loginReqHandler = CommandManager.getCommand(Command.COMMAND_LOGIN_REQ, LoginReqHandler.class);
+        if (loginReqHandler == null) {
+            throw new RuntimeException("登录对象为空!");
+        }
+        // 登录业务处理器
+        loginReqHandler.setSingleProcessor(new LoginServiceProcessor());
+
+        // 鉴权请求指令;
+        AuthReqHandler authReqHandler = CommandManager.getCommand(Command.COMMAND_AUTH_REQ, AuthReqHandler.class);
+        if (authReqHandler == null) {
+            throw new RuntimeException("鉴权信息对象为空!");
+        }
+        // 鉴权业务处理器;
+        authReqHandler.setSingleProcessor(new AuthServiceProcessor());
+
+        // 聊天请求指令
+        ChatReqHandler chatReqHandler = CommandManager.getCommand(Command.COMMAND_CHAT_REQ, ChatReqHandler.class);
+        if (chatReqHandler == null) {
+            throw new RuntimeException("聊天对象为空!");
+        }
+        // 聊天业务处理器;
+        chatReqHandler.setSingleProcessor(new AsyncChatMessageServiceProcessor());
+
+        // 添加好友请求指令
+        AddFriendReqHandler addFriendReqHandler =
+            CommandManager.getCommand(Command.COMMAND_ADD_FRIEND_REQ, AddFriendReqHandler.class);
+        if (addFriendReqHandler == null) {
+            throw new RuntimeException("新增好友对象为空!");
+        }
+        // 添加好友业务处理器
+        addFriendReqHandler.setSingleProcessor(new FriendServiceProcessor());
+
+        // 删除好友请求指令
+        DeleteFriendReqHandler deleteFriendReqHandler =
+            CommandManager.getCommand(Command.COMMAND_DELETE_FRIEND_REQ, DeleteFriendReqHandler.class);
+        if (deleteFriendReqHandler == null) {
+            throw new RuntimeException("删除好友对象为空!");
+        }
+        // 删除好友业务处理器
+        deleteFriendReqHandler.setSingleProcessor(new FriendServiceProcessor());
+
+        // 加入群组请求指令
+        JoinGroupReqHandler joinGroupReqHandler =
+            CommandManager.getCommand(Command.COMMAND_JOIN_GROUP_REQ, JoinGroupReqHandler.class);
+        if (joinGroupReqHandler == null) {
+            throw new RuntimeException("加入群组对象为空!");
+        }
+        // 加入群组业务处理器
+        joinGroupReqHandler.setSingleProcessor(new GroupServiceProcessor());
+
+        // 退出群组请求指令
+        ExitGroupReqHandler exitGroupReqHandler =
+            CommandManager.getCommand(Command.COMMAND_EXIT_GROUP_REQ, ExitGroupReqHandler.class);
+        if (exitGroupReqHandler == null) {
+            throw new RuntimeException("退出群组对象为空!");
+        }
+        // 退出群组业务处理器
+        exitGroupReqHandler.setSingleProcessor(new GroupServiceProcessor());
+
+        // 获取用户在线状态指令
+        GetUserOnlineStatusReqHandler getUserOnlineStatusReqHandler =
+            CommandManager.getCommand(Command.GET_USER_ONLINE_STATUS_REQ, GetUserOnlineStatusReqHandler.class);
+        if (getUserOnlineStatusReqHandler == null) {
+            throw new RuntimeException("获取用户在线状态对象为空!");
+        }
+        // 获取用户在线状态业务处理器
+        getUserOnlineStatusReqHandler.setSingleProcessor(new UserServiceProcessor());
+
+        // 获取消息通知
+        MsgNoticeReqHandler msgNoticeReqHandler =
+            CommandManager.getCommand(Command.MSG_NOTICE_REQ, MsgNoticeReqHandler.class);
+        if (msgNoticeReqHandler == null) {
+            throw new RuntimeException("获取消息通知对象为空!");
+        }
+        // 获取消息通知业务处理器
+        msgNoticeReqHandler.setSingleProcessor(new NoticeServiceProcessor());
+
+        // 获取用户下线通知指令
+        NoticeOfflineReqHandler noticeOfflineReqHandler =
+            CommandManager.getCommand(Command.NOTICE_OFFLINE_REQ, NoticeOfflineReqHandler.class);
+        if (noticeOfflineReqHandler == null) {
+            throw new RuntimeException("获取下线消息通知对象为空!");
+        }
+        // 获取用户下线通知业务处理器
+        noticeOfflineReqHandler.setSingleProcessor(new NoticeOfflineServiceProcessor());
+
+        // 获取用户申请通知
+        ReceiveMsgNoticeReqHandler receiveMsgNoticeReqHandler =
+            CommandManager.getCommand(Command.RECEIVE_MSG_NOTICE_REQ, ReceiveMsgNoticeReqHandler.class);
+        if (receiveMsgNoticeReqHandler == null) {
+            throw new RuntimeException("获取申请消息通知对象为空!");
+        }
+        // 获取用户申请消息通知业务处理器
+        receiveMsgNoticeReqHandler.setSingleProcessor(new ReceiveNoticeServiceProcessor());
+
+        //
+        // 消息ack通知
+        ChatAckReqHandler chatAckReqHandler = CommandManager.getCommand(Command.CHAT_ACK_REQ, ChatAckReqHandler.class);
+        if (chatAckReqHandler == null) {
+            throw new RuntimeException("消息ack对象为空!");
+        }
+        // 获取用户申请消息通知业务处理器
+        chatAckReqHandler.setSingleProcessor(new AsyncChatMessageServiceProcessor());
+        //
+        // 通知ack通知
+        NoticeAckReqHandler noticeAckReqHandler =
+            CommandManager.getCommand(Command.NOTICE_ACK_REQ, NoticeAckReqHandler.class);
+        if (noticeAckReqHandler == null) {
+            throw new RuntimeException("通知ack对象为空!");
+        }
+        // 获取用户申请消息通知业务处理器
+        noticeAckReqHandler.setSingleProcessor(new AsyncChatMessageServiceProcessor());
     }
 
     /**

@@ -243,6 +243,12 @@ public class RedisCache implements ICache {
         return null;
     }
 
+    /**
+     *
+     * @param key
+     * @param min
+     * @return
+     */
     public List<String> sortSetGetAll(String key, double min) {
         if (StringUtils.isBlank(key)) {
             return null;

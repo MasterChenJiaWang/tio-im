@@ -54,8 +54,6 @@ public class Test3HelloImClientHandler2 implements ImClientHandler, ImConst {
                 logger.error(e.getMessage(), e);
             }
         }
-
-        return;
     }
 
     private void decodeCommand(String str) {
@@ -113,7 +111,7 @@ public class Test3HelloImClientHandler2 implements ImClientHandler, ImConst {
                 break;
             // 获取聊天消息响应
             case COMMAND_GET_MESSAGE_RESP:
-                logger.warn("1-离线消息 : {}",  JSON.toJSONString(r.getData()));
+                logger.warn("1-离线消息 : {}", JSON.toJSONString(r.getData()));
                 Test3ClientStarter2 instance = new Test3ClientStarter2();
                 Map<String, ChatAckBody> chatBodyCache = instance.getChatBodyCache();
                 UserMessageData userMessageData =

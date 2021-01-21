@@ -76,12 +76,9 @@ public class LoginServiceProcessor extends AbstractProtocolCmdProcessor implemen
         if (userByType != null) {
             List<User> allFriendUsers = messageHelper.getAllFriendUsers(imChannelContext.getUserId(), userId, 2);
             userByType.setFriends(allFriendUsers);
-            // List<Group> allGroupUsers = messageHelper.getAllGroupUsers(userId, 2);
-            // userByType.setGroups(allGroupUsers);
             List<String> groups = messageHelper.getGroups(imChannelContext.getUserId(), userId);
             userByType.setGroupIds(groups);
         }
-
         return userByType;
     }
 
@@ -174,12 +171,6 @@ public class LoginServiceProcessor extends AbstractProtocolCmdProcessor implemen
     @Override
     public void onSuccess(User user, ImChannelContext channelContext) {
         logger.info("上下文ID [{}] 用户ID [{}]   登录成功回调方法", channelContext.getId(), channelContext.getUserId());
-        // ImServerConfig imServerConfig = ImConfig.Global.get();
-        // MessageHelper messageHelper = imServerConfig.getMessageHelper();
-        // //
-        // offlineMesage(channelContext, user.getUserId(), messageHelper);
-        // //
-        // notice(channelContext, user.getUserId(), messageHelper);
     }
 
     @Override

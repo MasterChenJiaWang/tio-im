@@ -1,5 +1,7 @@
 package com.daren.chen.im.client.listener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioListener;
 import org.tio.core.ChannelContext;
 import org.tio.core.intf.Packet;
@@ -17,6 +19,7 @@ import com.daren.chen.im.core.ImPacket;
  * @Version 1.0
  **/
 public class ImClientListenerAdapter implements ClientAioListener, ImConst {
+    private static final Logger log = LoggerFactory.getLogger(ImClientListenerAdapter.class);
     /**
      * 客户端端监听器
      */
@@ -31,6 +34,7 @@ public class ImClientListenerAdapter implements ClientAioListener, ImConst {
         throws Exception {
         ImClientChannelContext imClientChannelContext =
             new ImClientChannelContext(ImClientConfig.Global.get(), channelContext);
+        log.warn("onAfterConnected  执行 , isConnected = {},isReconnect = {} ", isConnected, isReconnect);
         channelContext.set(Key.IM_CHANNEL_CONTEXT_KEY, imClientChannelContext);
         imClientListener.onAfterConnected(imClientChannelContext, isConnected, isReconnect);
     }

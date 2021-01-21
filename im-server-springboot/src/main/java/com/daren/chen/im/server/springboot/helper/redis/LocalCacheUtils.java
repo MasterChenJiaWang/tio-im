@@ -797,18 +797,19 @@ public class LocalCacheUtils implements ImConst, Serializable {
                 return ChatKit.isOnline(userId);
             }
             String keyPattern = USER + SUFFIX + userId + SUFFIX + TERMINAL;
-            Set<String> terminalKeys = RedisTemplateUtils.getRedisTemplate().keys(keyPattern);
-            if (CollectionUtils.isEmpty(terminalKeys)) {
-                return false;
-            }
-            for (String terminalKey : terminalKeys) {
-                terminalKey = terminalKey.substring(terminalKey.indexOf(userId));
-                String isOnline = RedisCacheManager.getCache(USER).get(terminalKey, String.class);
-                if (UserStatusType.ONLINE.getStatus().equals(isOnline)) {
-                    return true;
-                }
-            }
-            return false;
+            // Set<String> terminalKeys = RedisTemplateUtils.getRedisTemplate().keys(keyPattern);
+            // if (CollectionUtils.isEmpty(terminalKeys)) {
+            // return false;
+            // }
+            // for (String terminalKey : terminalKeys) {
+            // terminalKey = terminalKey.substring(terminalKey.indexOf(userId));
+            // String isOnline = RedisCacheManager.getCache(USER).get(terminalKey, String.class);
+            // if (UserStatusType.ONLINE.getStatus().equals(isOnline)) {
+            // return true;
+            // }
+            // }
+            String isOnline = RedisCacheManager.getCache(USER).get(keyPattern, String.class);
+            return UserStatusType.ONLINE.getStatus().equals(isOnline);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return false;
@@ -1213,6 +1214,37 @@ public class LocalCacheUtils implements ImConst, Serializable {
             return;
         }
         RedisCacheManager.getCache(USER).put(userId + SUFFIX + TERMINAL + SUFFIX + terminal, user.getStatus());
+        if (UserStatusType.ONLINE.getStatus().equals(user.getStatus())) {
+            RedisCacheManager.getCache(USER).put(userId + SUFFIX + TERMINAL, user.getStatus());
+        } else {
+            try {
+                String keyPattern = USER + SUFFIX + userId + SUFFIX + TERMINAL + SUFFIX;
+                Set<String> terminalKeys = RedisTemplateUtils.getRedisTemplate().keys(keyPattern);
+                if (CollectionUtils.isEmpty(terminalKeys)) {
+                    RedisCacheManager.getCache(USER).put(userId + SUFFIX + TERMINAL,
+                        UserStatusType.OFFLINE.getStatus());
+                    return;
+                }
+                int i = 0;
+                for (String terminalKey : terminalKeys) {
+                    terminalKey = terminalKey.substring(terminalKey.indexOf(userId));
+                    String isOnline = RedisCacheManager.getCache(USER).get(terminalKey, String.class);
+                    if (UserStatusType.ONLINE.getStatus().equals(isOnline)) {
+                        i++;
+                    }
+                }
+                if (i > 0) {
+                    RedisCacheManager.getCache(USER).put(userId + SUFFIX + TERMINAL, UserStatusType.ONLINE.getStatus());
+                } else {
+                    RedisCacheManager.getCache(USER).put(userId + SUFFIX + TERMINAL,
+                        UserStatusType.OFFLINE.getStatus());
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+
+        }
+
     }
 
     /**

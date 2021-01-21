@@ -44,8 +44,23 @@ public class JimClient {
         if (Objects.nonNull(clientChannelContext)) {
             log.warn("JIM client connected success at serverAddress:[{}], bind localAddress:[{}]",
                 serverNode.toString(), imClientConfig.toBindAddressString());
-            return (ImClientChannelContext)clientChannelContext.get(ImConst.Key.IM_CHANNEL_CONTEXT_KEY);
+            Object o = null;
+            // 为空就等1s
+            int n = 100;
+            while (n > 0 && (o = clientChannelContext.get(ImConst.Key.IM_CHANNEL_CONTEXT_KEY)) == null) {
+                Thread.sleep(10);
+                n--;
+            }
+            if (o == null) {
+                log.warn("JIM client connected fail at serverAddress:[{}], bind localAddress:[{}]",
+                    serverNode.toString(), imClientConfig.toBindAddressString());
+                tioClient.stop();
+                return null;
+            }
+            return (ImClientChannelContext)o;
         }
+        log.warn("JIM client connected fail at serverAddress:[{}], bind localAddress:[{}]", serverNode.toString(),
+            imClientConfig.toBindAddressString());
         return null;
     }
 

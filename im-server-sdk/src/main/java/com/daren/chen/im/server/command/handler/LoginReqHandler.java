@@ -78,11 +78,11 @@ public class LoginReqHandler extends AbstractCmdHandler {
                 }
             }
             //
-            loginProcessor.onSuccess(user, imChannelContext);
-            //
             syncInit(imChannelContext, loginProcessor, loginReqBody);
             //
             loginRespBody.setUser(user);
+            //
+            loginProcessor.onSuccess(user, imChannelContext);
             return ProtocolManager.Converter.respPacket(loginRespBody, imChannelContext);
         } catch (ImException e) {
             log.error(e.getMessage());
@@ -98,44 +98,25 @@ public class LoginReqHandler extends AbstractCmdHandler {
         if (StringUtils.isNotBlank(userId)) {
             AuthCacheService.setEnvironment(userId);
         }
+        log.info("开始 获取 用户信息");
+        long l = System.currentTimeMillis();
         User user = loginProcessor.getUser(loginReqBody, imChannelContext);;
+        log.info("获取 用户信息耗时 :{}", System.currentTimeMillis() - l);
         if (user == null) {
+            log.info("开始 获取 用户信息 失败!!");
             return;
         }
+        log.info("开始 通知好友 本账户在线状态");
         // 通知 好友在线
         notifyFriendsOnline(user.getUserId(), user.getFriends(), imChannelContext);
         // //
         ImServerConfig imServerConfig = ImConfig.Global.get();
         boolean isStore = ImServerConfig.ON.equals(imServerConfig.getIsStore());
+        log.info("开始 获取 好友在线状态");
         initFriendsOnline(user.getFriends(), isStore, imChannelContext);
+        log.info("开始 初始化绑定或者解绑群组");
         // 初始化绑定或者解绑群组;
         initGroup(imChannelContext, user);
-        //
-        loginProcessor.onSuccess(user, imChannelContext);
-        // ExecutorUtils.EXECUTOR.execute(new Thread(() -> {
-        // try {
-        // String userId = loginReqBody.getUserId();
-        // if (StringUtils.isNotBlank(userId)) {
-        // AuthCacheService.setEnvironment(userId);
-        // }
-        // User user = loginProcessor.getUser(loginReqBody, imChannelContext);;
-        // if (user == null) {
-        // return;
-        // }
-        // // 通知 好友在线
-        // notifyFriendsOnline(user.getUserId(), user.getFriends(), imChannelContext);
-        // // //
-        // ImServerConfig imServerConfig = ImConfig.Global.get();
-        // boolean isStore = ImServerConfig.ON.equals(imServerConfig.getIsStore());
-        // initFriendsOnline(user.getFriends(), isStore, imChannelContext);
-        // // 初始化绑定或者解绑群组;
-        // initGroup(imChannelContext, user);
-        // //
-        // loginProcessor.onSuccess(user, imChannelContext);
-        // } catch (ImException e) {
-        // e.printStackTrace();
-        // }
-        // }));
     }
 
     /**
@@ -207,11 +188,6 @@ public class LoginReqHandler extends AbstractCmdHandler {
         if (Objects.isNull(loginProcessor)) {
             return null;
         }
-        // if (Objects.isNull(loginProcessor)) {
-        // User user =
-        // User.newBuilder().userId(loginReqBody.getUserId()).status(UserStatusType.ONLINE.getStatus()).build();
-        // return user;
-        // }
         loginRespBody = loginProcessor.doLogin(loginReqBody, imChannelContext);
         if (Objects.isNull(loginRespBody) || loginRespBody.getCode() != ImStatus.C10007.getCode()) {
             log.error("login failed, userId:{}, password:{}", loginReqBody.getUserId(), loginReqBody.getPassword());
@@ -231,7 +207,6 @@ public class LoginReqHandler extends AbstractCmdHandler {
         JimServerAPI.bindUserToken(imChannelContext, loginRespBody.getToken());
         loginReqBody.setUserId(user.getUserId());
         return loginReqBody;
-        // return loginProcessor.getUser(loginReqBody, imChannelContext);
     }
 
     /**
@@ -239,7 +214,6 @@ public class LoginReqHandler extends AbstractCmdHandler {
      */
     public void initGroup(ImChannelContext imChannelContext, User user) throws ImException {
         String userId = user.getUserId();
-        // List<Group> groups = user.getGroups();
         List<String> groupIds = user.getGroupIds();
         if (CollectionUtils.isEmpty(groupIds)) {
             return;
@@ -247,7 +221,6 @@ public class LoginReqHandler extends AbstractCmdHandler {
         ImServerConfig imServerConfig = ImConfig.Global.get();
         boolean isStore = ImServerConfig.ON.equals(imServerConfig.getIsStore());
         MessageHelper messageHelper = imServerConfig.getMessageHelper();
-        // List<String> groupIds = null;
         if (isStore) {
             groupIds = messageHelper.getGroups(imChannelContext.getUserId(), userId);
         }
@@ -258,18 +231,6 @@ public class LoginReqHandler extends AbstractCmdHandler {
                 newGroupIds.remove(groupId);
             }
             JimServerAPI.bindGroup(imChannelContext, groupId);
-            // JoinGroupReqBody joinGroupReqBody = JoinGroupReqBody.newBuilder().setIsLoginAdd(true).build();
-            // BeanUtil.copyProperties(group, joinGroupReqBody);
-            // //
-            // ImPacket groupPacket = new ImPacket(Command.COMMAND_JOIN_GROUP_REQ,
-            // JsonKit.toJsonBytes(joinGroupReqBody));
-            // try {
-            // JoinGroupReqHandler joinGroupReqHandler =
-            // CommandManager.getCommand(Command.COMMAND_JOIN_GROUP_REQ, JoinGroupReqHandler.class);
-            // joinGroupReqHandler.handler(groupPacket, imChannelContext);
-            // } catch (Exception e) {
-            // log.error(e.toString(), e);
-            // }
         }
         if (isStore) {
             for (String groupId : newGroupIds) {

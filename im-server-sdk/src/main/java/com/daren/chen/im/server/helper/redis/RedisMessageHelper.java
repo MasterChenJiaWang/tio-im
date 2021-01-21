@@ -1,5 +1,16 @@
 package com.daren.chen.im.server.helper.redis;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSONObject;
 import com.daren.chen.im.core.cache.redis.JedisTemplate;
 import com.daren.chen.im.core.cache.redis.RedisCache;
@@ -21,17 +32,6 @@ import com.daren.chen.im.core.packets.UserMessageData;
 import com.daren.chen.im.core.packets.UserStatusType;
 import com.daren.chen.im.core.utils.JsonKit;
 import com.daren.chen.im.server.util.ChatKit;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * Redis获取持久化+同步消息助手;
@@ -65,17 +65,19 @@ public class RedisMessageHelper extends AbstractMessageHelper {
     public boolean isOnline(String userId) {
         try {
             String keyPattern = USER + SUFFIX + userId + SUFFIX + TERMINAL;
-            Set<String> terminalKeys = JedisTemplate.me().keys(keyPattern);
-            if (CollectionUtils.isEmpty(terminalKeys)) {
-                return false;
-            }
-            for (String terminalKey : terminalKeys) {
-                terminalKey = terminalKey.substring(terminalKey.indexOf(userId));
-                String isOnline = RedisCacheManager.getCache(USER).get(terminalKey, String.class);
-                if (UserStatusType.ONLINE.getStatus().equals(isOnline)) {
-                    return true;
-                }
-            }
+            // Set<String> terminalKeys = JedisTemplate.me().keys(keyPattern);
+            // if (CollectionUtils.isEmpty(terminalKeys)) {
+            // return false;
+            // }
+            // for (String terminalKey : terminalKeys) {
+            // terminalKey = terminalKey.substring(terminalKey.indexOf(userId));
+            // String isOnline = RedisCacheManager.getCache(USER).get(terminalKey, String.class);
+            // if (UserStatusType.ONLINE.getStatus().equals(isOnline)) {
+            // return true;
+            // }
+            // }
+            String isOnline = RedisCacheManager.getCache(USER).get(keyPattern, String.class);
+            return UserStatusType.ONLINE.getStatus().equals(isOnline);
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -234,7 +236,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
      */
     @Override
     public UserMessageData getFriendHistoryMessage(String operateUserId, String userId, String fromUserId,
-                                                   Double beginTime, Double endTime, Integer offset, Integer count) {
+        Double beginTime, Double endTime, Integer offset, Integer count) {
         String sessionId = ChatKit.sessionId(userId, fromUserId);
         String userSessionKey = USER + SUFFIX + sessionId;
         List<String> messages = getHistoryMessage(userSessionKey, beginTime, endTime, offset, count);
@@ -256,7 +258,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
      */
     @Override
     public UserMessageData getGroupHistoryMessage(String operateUserId, String userId, String groupId, Double beginTime,
-                                                  Double endTime, Integer offset, Integer count) {
+        Double endTime, Integer offset, Integer count) {
         String groupKey = GROUP + SUFFIX + groupId;
         List<String> messages = getHistoryMessage(groupKey, beginTime, endTime, offset, count);
         UserMessageData messageData = new UserMessageData(userId);
@@ -280,7 +282,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
      * @return
      */
     private List<String> getHistoryMessage(String historyKey, Double beginTime, Double endTime, Integer offset,
-                                           Integer count) {
+        Integer count) {
         boolean isTimeBetween = (beginTime != null && endTime != null);
         boolean isPage = (offset != null && count != null);
         RedisCache storeCache = RedisCacheManager.getCache(STORE);
@@ -356,7 +358,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
     /**
      * 获取群组所有成员信息
      *
-     * @param groupId                               群组ID
+     * @param groupId
+     *            群组ID
      * @param type(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线])
      * @return
      */
@@ -477,7 +480,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
     /**
      * 获取好友分组所有成员信息
      *
-     * @param userId                                用户ID
+     * @param userId
+     *            用户ID
      * @param type(0:所有在线用户,1:所有离线用户,2:所有用户[在线+离线])
      * @return
      */
@@ -553,7 +557,8 @@ public class RedisMessageHelper extends AbstractMessageHelper {
     /**
      * 更新用户终端协议类型及在线状态;
      *
-     * @param user 用户信息
+     * @param user
+     *            用户信息
      */
     @Override
     public boolean updateUserTerminal(String operateUserId, User user) {
@@ -564,7 +569,7 @@ public class RedisMessageHelper extends AbstractMessageHelper {
             log.error("userId:{},terminal:{},status:{} must not null", userId, terminal, status);
             return false;
         }
-        RedisCacheManager.getCache(USER).put(userId + SUFFIX + TERMINAL + SUFFIX + terminal, user.getStatus());
+        RedisCacheManager.getCache(USER).listPushTail(userId + SUFFIX + TERMINAL, terminal);
         return true;
     }
 
